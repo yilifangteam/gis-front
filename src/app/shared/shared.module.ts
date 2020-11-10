@@ -1,12 +1,11 @@
-import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { NgModule } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { AlainThemeModule } from '@delon/theme';
 import { DelonACLModule } from '@delon/acl';
-
+import { AlainThemeModule } from '@delon/theme';
 import { TranslateModule } from '@ngx-translate/core';
-
+import { SHARED_COMPONENTS } from './components';
 import { SHARED_DELON_MODULES } from './shared-delon.module';
 import { SHARED_ZORRO_MODULES } from './shared-zorro.module';
 
@@ -18,7 +17,7 @@ const THIRDMODULES = [];
 
 // #region your componets & directives
 
-const COMPONENTS = [];
+const COMPONENTS = [...SHARED_COMPONENTS];
 const DIRECTIVES = [];
 
 // #endregion

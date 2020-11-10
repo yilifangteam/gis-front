@@ -12,7 +12,7 @@ import XYZ from 'ol/source/XYZ';
  * @type {string}
  * @api
  */
-export const ATTRIBUTION = '&#169; ' + '<a href="https://www.fine1.org/copyright" target="_blank">fine1Map</a> ' + 'contributors.';
+export const ATTRIBUTION = '&#169; ' + '<a href="https://www.fine1.cn/copyright" target="_blank">fine1Map</a> ' + 'contributors.';
 
 export class AMapVec extends XYZ {
   /**

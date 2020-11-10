@@ -27,13 +27,13 @@
     "directive-selector": [
       true,
       "attribute",
-      ["app", "passport", "exception", "layout", "header"],
+      ["app", "passport", "exception", "layout", "header","ipt"],
       "camelCase"
     ],
     "component-selector": [
       true,
       "element",
-      ["app", "passport", "exception", "layout", "header"],
+      ["app", "passport", "exception", "layout", "header","ipt"],
       "kebab-case"
     ],
     "eofline": true,

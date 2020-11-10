@@ -25,15 +25,15 @@ export class GeoService {
    */
   constructor() {
     const layerTiles = [
-      new LayerTile({
-        source: new AMapImg(),
-      }),
-      new LayerTile({
-        source: new AMapVec(),
-      }),
       // new LayerTile({
-      //   source: new AMapRoadLabel(),
+      //   source: new AMapImg(),
       // }),
+      // new LayerTile({
+      //   source: new AMapVec(),
+      // }),
+      new LayerTile({
+        source: new AMapRoadLabel(),
+      }),
     ];
 
     this.map = new Map({
@@ -41,7 +41,7 @@ export class GeoService {
       layers: [...layerTiles],
       view: new View({
         center: fromLonLat([114.065286, 22.541722]),
-        zoom: 14,
+        zoom: 16,
         constrainResolution: true,
       }),
       controls: defaultControls().extend([
@@ -50,10 +50,10 @@ export class GeoService {
         //   extent: [813079.7791264898, 5929220.284081122, 848966.9639063801, 5936863.986909639],
         // }),
         new FullScreen(),
-        new ScaleLine({
-          bar: true,
-          minWidth: 150,
-        }),
+        // new ScaleLine({
+        //   bar: true,
+        //   minWidth: 150,
+        // }),
       ]),
     });
   }

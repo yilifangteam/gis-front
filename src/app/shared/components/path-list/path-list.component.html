@@ -1,7 +1,16 @@
 <!-- <div class="toolbar">
   <button class="button" [disabled]="!geolocation" (click)="locate()">我的位置</button>
 </div> -->
-
+<!-- <div id="menu">
+  <label for="speed" style="font-weight: bold;">
+      运动速度:&nbsp;
+      <input id="speed" type="range" min="1" max="20" step="1" value="10" />
+  </label>
+  <button id="start-animation">
+      开始运动
+  </button>
+</div> -->
+<!-- 注：此代码仅为上面速度条和按钮-->
 <div id="map" class="map"></div>
 <div class="tool-bar">
   <div class="search">
@@ -28,6 +37,7 @@
     >
       <nz-card-tab>
         <nz-tabset nzSize="small" [(nzSelectedIndex)]="index2">
+          <nz-tab nzTitle="全部"></nz-tab>
           <nz-tab nzTitle="上班"></nz-tab>
           <nz-tab nzTitle="任务中"></nz-tab>
           <nz-tab nzTitle="待命中"></nz-tab>
@@ -37,6 +47,9 @@
       <nz-list nzSize="small">
         <nz-list-item *ngFor="let item of data">
           <nz-space>
+            <nz-space-item>
+              <label nz-checkbox></label>
+            </nz-space-item>
             <nz-space-item>
               <nz-tag [nzColor]="'green'">上班</nz-tag>
             </nz-space-item>
@@ -54,4 +67,43 @@
       </nz-list>
     </nz-card>
   </div>
+</div>
+<div class="view-bar">
+  <div>
+    <span>
+      <img src="./assets/images/菜单.svg" />
+    </span>
+    菜单
+  </div>
+  <div>
+    <span>
+      <img src="./assets/images/路况.svg" />
+    </span>
+    路况
+  </div>
+  <div>
+    <span>
+      <img src="./assets/images/卫星.svg" />
+    </span>
+    卫星
+  </div>
+</div>
+<div class="view-info">
+  <ng-template #extraTemplate>
+    <a><i nz-icon nzType="close" nzTheme="outline"></i></a>
+  </ng-template>
+  <nz-card
+    [nzBordered]="false"
+    [nzBodyStyle]="{
+      padding: 0,
+      margin: '0 8px',
+      'background-color': '#F6F6F6'
+    }"
+    nzTitle="粤BDH6233果蔬垃圾"
+    [nzExtra]="extraTemplate"
+  >
+    <p>分类：果蔬垃圾</p>
+    <p>基地：红花果子</p>
+    <p>地址：广东省深圳市南山区红花路112号</p>
+  </nz-card>
 </div>

@@ -1,18 +1,19 @@
 import { Injectable } from '@angular/core';
+import { Feature } from 'ol';
 import { defaults as defaultControls } from 'ol/control';
 import Attribution from 'ol/control/Attribution';
 import FullScreen from 'ol/control/FullScreen';
-import ScaleLine from 'ol/control/ScaleLine';
-import ZoomToExtent from 'ol/control/ZoomToExtent';
+import GeometryLayout from 'ol/geom/GeometryLayout';
+import Point from 'ol/geom/Point';
 import { defaults as defaultInteractions, PinchZoom } from 'ol/interaction';
 import LayerTile from 'ol/layer/Tile';
+import VectorLayer from 'ol/layer/Vector';
 import Map from 'ol/Map';
 import { fromLonLat } from 'ol/proj';
-import SourceOsm from 'ol/source/OSM';
-import SourceStamen from 'ol/source/Stamen';
+import VectorSource from 'ol/source/Vector';
+import { Icon, Style } from 'ol/style';
 import View from 'ol/View';
-import { AMapImg, AMapRoadLabel, AMapVec } from './amap.source';
-import { MapUrl } from './map.url';
+import { AMapVec } from './amap.source';
 
 @Injectable({
   providedIn: 'root',
@@ -24,15 +25,86 @@ export class GeoService {
    * Initialise the map.
    */
   constructor() {
+    const place = [114.065344, 22.540882];
+
+    const point = new Point(place, GeometryLayout.XY);
+
+    // 创建图标样式
+    const iconStyle = new Style({
+      image: new Icon({
+        opacity: 0.75,
+        src: 'http://localhost:4200/assets/images/garbage_truck.png',
+      }),
+    });
+
+    const rome = new Feature({
+      geometry: new Point(fromLonLat([114.064593, 22.540454])),
+    });
+    rome.setStyle(
+      new Style({
+        image: new Icon({
+          // color: 'green',
+          rotateWithView: false,
+          scale: 0.05,
+          crossOrigin: 'anonymous',
+          rotation: 0,
+          // For Internet Explorer 11
+          // imgSize: [90, 90],
+          src: 'http://localhost:4200/assets/images/garbage_truck.png',
+        }),
+      }),
+    );
+
+    const rome1 = new Feature({
+      geometry: new Point(fromLonLat([114.067683, 22.538561])),
+    });
+    rome1.setStyle(
+      new Style({
+        image: new Icon({
+          // color: 'green',
+          rotateWithView: false,
+          scale: 0.05,
+          crossOrigin: 'anonymous',
+          rotation: 1.5,
+          // For Internet Explorer 11
+          // imgSize: [90, 90],
+          src: 'http://localhost:4200/assets/images/garbage_truck.png',
+        }),
+      }),
+    );
+
+    const rome2 = new Feature({
+      geometry: new Point(fromLonLat([114.064443, 22.539602])),
+    });
+    rome2.setStyle(
+      new Style({
+        image: new Icon({
+          // color: 'green',
+          rotateWithView: false,
+          scale: 0.05,
+          crossOrigin: 'anonymous',
+          // For Internet Explorer 11
+          // imgSize: [90, 90],
+          src: 'http://localhost:4200/assets/images/garbage_truck.png',
+        }),
+      }),
+    );
+
     const layerTiles = [
       // new LayerTile({
       //   source: new AMapImg(),
       // }),
-      // new LayerTile({
-      //   source: new AMapVec(),
-      // }),
       new LayerTile({
-        source: new AMapRoadLabel(),
+        source: new AMapVec(),
+      }),
+      // new LayerTile({
+      //   source: new AMapRoadLabel(),
+      // }),
+      new VectorLayer({
+        source: new VectorSource({
+          features: [rome, rome1, rome2],
+        }),
+        // style: iconStyle,
       }),
     ];
 

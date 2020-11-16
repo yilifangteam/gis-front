@@ -23,7 +23,7 @@ export class AppComponent implements OnInit {
 
   ngOnInit(): void {
     this.router.events.pipe(filter((evt) => evt instanceof NavigationEnd)).subscribe(() => {
-      this.titleSrv.setTitle();
+      // this.titleSrv.setTitle();
       this.modalSrv.closeAll();
     });
   }

@@ -12,7 +12,7 @@ import XYZ from 'ol/source/XYZ';
  * @type {string}
  * @api
  */
-export const ATTRIBUTION = '&#169; ' + '<a href="https://www.fine1.cn/copyright" target="_blank">fine1Map</a> ' + 'contributors.';
+export const ATTRIBUTION = '&#169; ' + '<a href="https://www.fine1.cn/copyright" target="_blank">fine1-gis</a> ' + 'contributors.';
 
 export class AMapVec extends XYZ {
   /**
@@ -40,13 +40,14 @@ export class AMapVec extends XYZ {
       attributionsCollapsible: false,
       cacheSize: options.cacheSize,
       crossOrigin,
-      projection: get('EPSG:3857'),
+      projection: options.projection || get('EPSG:3857'),
       imageSmoothing: options.imageSmoothing,
       maxZoom: options.maxZoom !== undefined ? options.maxZoom : 19,
       opaque: options.opaque !== undefined ? options.opaque : true,
       reprojectionErrorThreshold: options.reprojectionErrorThreshold,
       tileLoadFunction: options.tileLoadFunction,
       transition: options.transition,
+      tileGrid: options.tileGrid,
       url,
       wrapX: options.wrapX !== undefined ? options.wrapX : true,
     });

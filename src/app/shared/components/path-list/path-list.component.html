@@ -16,14 +16,15 @@
   <div class="search">
     <nz-space>
       <nz-space-item>
-        <nz-select style="width: 280px" nzShowSearch nzAllowClear nzPlaceHolder="选择中心查询" [(ngModel)]="selectedValue">
-          <nz-option nzLabel="Jack" nzValue="jack"></nz-option>
-          <nz-option nzLabel="Lucy" nzValue="lucy"></nz-option>
-          <nz-option nzLabel="Tom" nzValue="tom"></nz-option>
-        </nz-select>
-      </nz-space-item>
-      <nz-space-item>
-        <button nz-button nzType="primary">查询</button>
+        <nz-input-group class="search" nzSearch [nzAddOnAfter]="suffixIconButton" [nzSuffix]="inputClearTpl">
+          <input type="text" nz-input placeholder="搜索垃圾运输车、垃圾点" #ipt [(ngModel)]="inputValue" />
+        </nz-input-group>
+        <ng-template #suffixIconButton>
+          <button nz-button nzType="primary" nzSearch (click)="query(ipt.value)"><i nz-icon nzType="search"></i></button>
+        </ng-template>
+        <ng-template #inputClearTpl
+          ><i nz-icon class="ant-input-clear-icon" nzTheme="fill" nzType="close-circle" *ngIf="inputValue" (click)="inputValue = null"></i
+        ></ng-template>
       </nz-space-item>
     </nz-space>
   </div>
@@ -36,35 +37,66 @@
       nzBorderless="true"
     >
       <nz-card-tab>
-        <nz-tabset nzSize="small" [(nzSelectedIndex)]="index2">
-          <nz-tab nzTitle="全部"></nz-tab>
-          <nz-tab nzTitle="上班"></nz-tab>
-          <nz-tab nzTitle="任务中"></nz-tab>
-          <nz-tab nzTitle="待命中"></nz-tab>
-          <nz-tab nzTitle="下班"></nz-tab>
+        <nz-tabset nzSize="small" [(nzSelectedIndex)]="tabIndex" (nzSelectedIndexChange)="selectedIndexChange($event)">
+          <nz-tab nzTitle="垃圾运输车"></nz-tab>
+          <nz-tab nzTitle="垃圾点"></nz-tab>
         </nz-tabset>
       </nz-card-tab>
-      <nz-list nzSize="small">
-        <nz-list-item *ngFor="let item of data">
-          <nz-space>
-            <nz-space-item>
-              <label nz-checkbox></label>
-            </nz-space-item>
-            <nz-space-item>
-              <nz-tag [nzColor]="'green'">上班</nz-tag>
-            </nz-space-item>
-            <nz-space-item>
-              <div class="task-name">
-                {{ item }}
-              </div>
-            </nz-space-item>
-            <nz-space-item>
-              <nz-tag [nzColor]="'#108ee9'">途中待命</nz-tag>
-            </nz-space-item>
-          </nz-space>
-        </nz-list-item>
-        <nz-list-footer> <nz-pagination nzSize="small" [nzPageIndex]="1" [nzTotal]="50"></nz-pagination></nz-list-footer>
-      </nz-list>
+      <ng-container *ngIf="tabIndex == 0">
+        <nz-list nzSize="small">
+          <nz-list-item *ngFor="let item of pageData">
+            <nz-space>
+              <nz-space-item>
+                <label nz-checkbox [(ngModel)]="item.checked"></label>
+              </nz-space-item>
+
+              <nz-space-item>
+                <div class="task-name">{{ item.carNum }} {{ item.comClearTypeName && '[' + item.comClearTypeName + ']' }}</div>
+              </nz-space-item>
+              <nz-space-item>
+                <nz-tag [nzColor]="'#108ee9'">{{ item.speedStatus }}</nz-tag>
+              </nz-space-item>
+            </nz-space>
+          </nz-list-item>
+          <nz-list-pagination>
+            <nz-pagination
+              [nzPageIndex]="listPagination.pageIndex"
+              [nzPageSize]="listPagination.pageSize"
+              [nzTotal]="data.length"
+              (nzPageIndexChange)="listPagination.onChange($event)"
+            ></nz-pagination>
+          </nz-list-pagination>
+        </nz-list>
+      </ng-container>
+
+      <ng-container *ngIf="tabIndex == 1">
+        <nz-list nzSize="small">
+          <nz-list-item *ngFor="let item of pageData">
+            <nz-space>
+              <nz-space-item>
+                <label nz-checkbox [(ngModel)]="item.checked"></label>
+              </nz-space-item>
+
+              <nz-space-item>
+                <div class="site">
+                  <div class="site-title">{{ item.Name }} {{ item.workContentName && '[' + item.workContentName + ']' }}</div>
+                  <div class="site-address">
+                    {{ item.site }}
+                  </div>
+                </div>
+              </nz-space-item>
+            </nz-space>
+          </nz-list-item>
+          <nz-list-pagination>
+            <nz-pagination
+              [nzPageIndex]="listPagination.pageIndex"
+              [nzPageSize]="listPagination.pageSize"
+              [nzTotal]="data.length"
+              (nzPageIndexChange)="listPagination.onChange($event)"
+            ></nz-pagination>
+          </nz-list-pagination>
+        </nz-list>
+      </ng-container>
     </nz-card>
   </div>
 </div>

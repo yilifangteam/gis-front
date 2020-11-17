@@ -1,4 +1,5 @@
 import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { GeoPathService } from '@service/common/geo-path.service';
 import { GeoService } from '@service/common/geo.service';
 import { MapDataService } from '@service/common/map.data.service';
 import { chunkArray } from '../../utils/array';
@@ -9,7 +10,7 @@ import { chunkArray } from '../../utils/array';
   styleUrls: ['./path-list.component.less'],
 })
 export class PathListComponent implements OnInit, AfterViewInit {
-  constructor(public geo: GeoService, private mapDataSrv: MapDataService) {}
+  constructor(public geo: GeoService, private geoPathSrv: GeoPathService, private mapDataSrv: MapDataService) {}
   geolocation: Geolocation;
 
   /**

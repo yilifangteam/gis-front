@@ -1,18 +1,27 @@
 :host {
   .map {
     width: 100%;
-    height: calc(100vh - 45px);
+    height: calc(100vh - 5px);
   }
   .search {
-    width: 356px;
+    width: 345px;
+    padding-left: 6px;
+  }
+  .tab {
+    cursor: auto;
+  }
+  .pointer {
+    cursor: pointer;
   }
 
   .tool-bar {
     position: absolute;
-    top: 10%;
-    width: 400px;
-    padding: 16px 16px 0 24px;
+    top: 16px;
+    left: 16px;
+    width: 360px;
+    padding: 16px 0 0 0;
     background-color: white;
+    cursor: move;
   }
   .space-between {
     justify-content: space-between;
@@ -25,7 +34,7 @@
   }
   .view-bar {
     position: absolute;
-    top: 10%;
+    top: 16px;
     right: 24px;
     display: flex;
     align-items: center;
@@ -45,5 +54,10 @@
     right: 24px;
     width: 300px;
     background-color: white;
+  }
+
+  .ant-tabs > .ant-tabs-nav .ant-tabs-nav-wrap,
+  .ant-tabs > div > .ant-tabs-nav .ant-tabs-nav-wrap {
+    overflow: inherit;
   }
 }

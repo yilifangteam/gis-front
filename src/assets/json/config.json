@@ -1,0 +1,14 @@
+{
+    "dashboard": {
+        "name": "轨迹历史数据",
+        "url": "https://garbagesortingcity.fine1.com.cn/8888/influxdb/health/selectByTable",
+        "test": false,
+        "pUrl": "https://garbagesortingcity.fine1.com.cn/8888/influxdb/health/selectByTable"
+    },
+    "dashboard1": {
+        "name": "gps信息",
+        "url": "http://49.234.204.23:6605/CarGps/getGpsDatas",
+        "test": false,
+        "pUrl": "http://49.234.204.23:6605/CarGps/getGpsDatas"
+    },
+}

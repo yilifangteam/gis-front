@@ -1,9 +1,11 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { FullContentComponent } from '@delon/abc';
 import { SimpleGuard } from '@delon/auth';
 import { environment } from '@env/environment';
 // layout
 import { LayoutDefaultComponent } from '../layout/default/default.component';
+import { LayoutFullScreenComponent } from '../layout/fullscreen/fullscreen.component';
 import { LayoutPassportComponent } from '../layout/passport/passport.component';
 // single pages
 import { CallbackComponent } from './callback/callback.component';
@@ -21,6 +23,7 @@ const routes: Routes = [
     path: '',
     component: HomeComponent,
   },
+  { path: 'ol', loadChildren: () => import('./ol/ol.module').then((m) => m.OlModule) },
   {
     path: 'manage',
     component: LayoutDefaultComponent,

@@ -38,6 +38,7 @@
     "@delon/mock": "^10.0.2",
     "@delon/theme": "^10.0.2",
     "@delon/util": "^10.0.2",
+    "@mapbox/polyline": "^1.1.1",
     "@ngx-translate/core": "^13.0.0",
     "@ngx-translate/http-loader": "^6.0.0",
     "@types/ol": "^6.4.2",

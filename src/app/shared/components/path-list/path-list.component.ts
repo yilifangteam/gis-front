@@ -1,10 +1,14 @@
-import { AfterViewInit, Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit, TemplateRef, ViewChild, ViewContainerRef } from '@angular/core';
 import { GeoPathService } from '@service/common/geo-path.service';
 import { GeoService } from '@service/common/geo.service';
 import { MapDataService } from '@service/common/map.data.service';
+import { NzModalService } from 'ng-zorro-antd/modal';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { chunkArray } from '../../utils/array';
 import { Fine1MapService } from './fine1-map.service';
+import { PathHistoryComponent } from './path-history.component';
 
 @Component({
   selector: 'ipt-path-list',
@@ -12,13 +16,17 @@ import { Fine1MapService } from './fine1-map.service';
   styleUrls: ['./path-list.component.less'],
   providers: [Fine1MapService],
 })
-export class PathListComponent implements OnInit, AfterViewInit {
+export class PathListComponent implements OnInit, AfterViewInit, OnDestroy {
+  private destroy$ = new Subject<void>();
   constructor(
     // public geo: GeoService,
-    private fine1MapSrv: Fine1MapService,
+    public fine1MapSrv: Fine1MapService,
     private notificationSrv: NzNotificationService,
     private mapDataSrv: MapDataService,
+    private modal: NzModalService,
+    private viewContainerRef: ViewContainerRef,
   ) {}
+
   @ViewChild('carTpl', { static: false }) carTpl?: TemplateRef<{}>;
   geolocation: Geolocation;
 
@@ -53,13 +61,32 @@ export class PathListComponent implements OnInit, AfterViewInit {
   /**
    * tip box 限制 3个
    */
-  tipBoxLimit = 3;
+  tipBoxLimit = 1;
 
   ngOnInit(): void {
     this.geolocation = navigator.geolocation;
     this.mapDataSrv.getGpsData().subscribe((d) => {
       this.baseData = d;
       this.query();
+      this.fine1MapSrv.showCar(this.baseData.carGps);
+      this.mapDataSrv
+        .getCarRealTimeGps()
+        .pipe(takeUntil(this.destroy$))
+        .subscribe((data) => {
+          if (data && data.length > 0) {
+            const e = this.baseData.carGps.find((x) => x.imei == data[0].imei);
+            if (e) {
+              if (e.historyLine) {
+                e.historyLine = [...e.historyLine, [data[0].longitude, data[0].latitude]];
+              }
+              Object.assign(e, data[0]);
+            } else {
+              this.baseData.carGps.push(data[0]);
+            }
+
+            this.fine1MapSrv.showCar(this.baseData.carGps);
+          }
+        });
     });
   }
 
@@ -73,7 +100,12 @@ export class PathListComponent implements OnInit, AfterViewInit {
       case 0:
         // 垃圾运输车
         if (kw) {
-          this.data = [...this.baseData.carGps.filter((c) => c.callout.content.toLowerCase().indexOf(kw.toLowerCase()) >= 0)];
+          this.data = [
+            ...this.baseData.carGps.filter(
+              (c) =>
+                c.carNum.toLowerCase().indexOf(kw.toLowerCase()) >= 0 || c.comClearTypeName.toLowerCase().indexOf(kw.toLowerCase()) >= 0,
+            ),
+          ];
         } else {
           this.data = [...this.baseData.carGps];
         }
@@ -126,6 +158,7 @@ export class PathListComponent implements OnInit, AfterViewInit {
 
   checkChange($event, item) {
     if ($event) {
+      item.tabIndex = this.tabIndex;
       this.addTipBoxList(item);
     } else {
       this.subTipBoxList(item);
@@ -136,12 +169,17 @@ export class PathListComponent implements OnInit, AfterViewInit {
     if (this.tipBoxLimit <= this.tipBoxList.length) {
       this.subTipBoxList(this.tipBoxList[0]);
     }
-    const nty = this.notificationSrv.template(this.carTpl, { nzData: item, nzDuration: 0, nzKey: item.recNo || item.id });
+    const nty = this.notificationSrv.template(this.carTpl, {
+      nzClass: 'fine1-ntf',
+      nzData: item,
+      nzDuration: 0,
+      nzKey: item.recNo || item.id,
+    });
     item.ntfId = nty.messageId;
     nty.onClose.subscribe((x) => {
       const tmp = this.tipBoxList.find((t) => t.ntfId == nty.messageId);
       if (tmp) {
-        tmp.checked = false;
+        this.subTipBoxList(tmp);
       }
     });
     this.tipBoxList.push(item);
@@ -149,8 +187,27 @@ export class PathListComponent implements OnInit, AfterViewInit {
 
   subTipBoxList(item) {
     item.checked = false;
-    item.ntfId = '';
     this.notificationSrv.remove(item.ntfId);
+    item.ntfId = '';
     this.tipBoxList = this.tipBoxList.filter((t) => t !== item);
+  }
+
+  viewHistory(item) {
+    const modal = this.modal.create({
+      nzTitle: item.carNum,
+      nzContent: PathHistoryComponent,
+      nzViewContainerRef: this.viewContainerRef,
+      nzComponentParams: {
+        car: item,
+      },
+      nzWidth: '720px',
+      nzZIndex: 1020,
+      nzCancelText: null,
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

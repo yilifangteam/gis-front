@@ -11,4 +11,10 @@
         "test": false,
         "pUrl": "http://49.234.204.23:6605/CarGps/getGpsDatas"
     },
+    "dashboard2": {
+        "name": "实时gps信息",
+        "url": "ws://49.234.204.23:9934/app/car/gps",
+        "test": false,
+        "pUrl": "ws://49.234.204.23:9934/app/car/gps"
+    }
 }

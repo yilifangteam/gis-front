@@ -1,0 +1,220 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no, width=device-width">
+    <title>行政区边界查询</title>
+    <link rel="stylesheet" href="https://a.amap.com/jsapi_demos/static/demo-center/css/demo-center.css"/> 
+    <style>
+        html,body{
+            position: relative;
+        }
+        html,body,#container{
+            margin:0;
+            height:100%;
+        }
+        .input-item-text{
+            width:7rem;
+        }
+    </style>
+</head>
+<body>
+<div id="container"></div>
+<div class="input-card" style = "display: none">
+    <label style='color:grey'>行政区边界查询</label>
+    <div class="input-item">
+            <div class="input-item-prepend">
+                <span class="input-item-text" >行政级别</span>
+            </div>
+            <select id="level">
+                <option value="city">city</option>
+                <option value="district">district</option>
+                <option value="province">province</option>
+            </select>
+            
+    </div>
+    <div class="input-item">
+            <div class="input-item-prepend">
+                <span class="input-item-text" >名称/adcode</span>
+            </div>
+            <input id='district' type="text" value='长治市'>
+            
+    </div>
+    <input id="draw" type="button" class="btn" value="查询" />
+</div>
+<script src="https://a.amap.com/jsapi_demos/static/china.js"></script>
+<script type="text/javascript" src="https://webapi.amap.com/maps?v=1.4.15&key=dfc469a8b5d587acd06c1aa51b4b66bf&plugin=AMap.DistrictSearch&plugin=AMap.MarkerClusterer"></script>
+<script type="text/javascript">
+    //初始化地图对象，加载地图
+    var map = new AMap.Map("container", {
+        // resizeEnable: true,
+        center: [116.397428, 39.90923],//地图中心点
+        zoom: 19, //地图显示的缩放级别
+        zooms:[9,18],
+        // mapStyle: "amap://styles/darkblue"
+        pitch: 0,
+        viewMode: '3D',
+        mapStyle:'amap://styles/9fce57c9bc3670d50f4b0f312a4111bf'
+
+    });
+    console.log(map.getZoom(),"*********");
+    var district = null;
+    var polygons=[];
+    function drawBounds() {
+        //加载行政区划插件
+        if(!district){
+            //实例化DistrictSearch
+            var opts = {
+                subdistrict: 0,   //获取边界不需要返回下级行政区
+                extensions: 'all',  //返回行政区边界坐标组等具体信息
+                level: 'district'  //查询行政级别为 市
+            };
+            district = new AMap.DistrictSearch(opts);
+        }
+        //行政区查询
+        district.setLevel(document.getElementById('level').value)
+        district.search("长治市", function(status, result) {
+            map.remove(polygons)//清除上次结果
+            polygons = [];
+            var bounds = result.districtList[0].boundaries;
+            if (bounds) {
+                for (var i = 0, l = bounds.length; i < l; i++) {
+                    //生成行政区划polygon
+                    var polygon = new AMap.Polygon({
+                        strokeWeight: 1,
+                        path: bounds[i],
+                        fillOpacity: 0.4,
+                        fillColor: '#143048',
+                        strokeColor: '#0A1A29'
+                    });
+                    polygons.push(polygon);
+                }
+            }
+            map.add(polygons)
+            map.setFitView(polygons);//视口自适应
+
+            var outer = [
+                new AMap.LngLat(-360,90,true),
+                new AMap.LngLat(-360,-90,true),
+                new AMap.LngLat(360,-90,true),
+                new AMap.LngLat(360,90,true),
+            ];
+            var holes = result.districtList[0].boundaries
+     
+            var pathArray = [
+                outer
+            ];
+            pathArray.push.apply(pathArray,holes)
+            var polygon = new AMap.Polygon( {
+                pathL:pathArray,
+                //线条颜色，使用16进制颜色代码赋值。默认值为#006600
+                // strokeColor: 'rgb(20,164,173)',
+                strokeColor:"#001826",
+                strokeWeight: 4,
+                //轮廓线透明度，取值范围[0,1]，0表示完全透明，1表示不透明。默认为0.9
+                strokeOpacity:0.5,
+                //多边形填充颜色，使用16进制颜色代码赋值，如：#FFAA00
+                fillColor: '#143048',
+                //多边形填充透明度，取值范围[0,1]，0表示完全透明，1表示不透明。默认为0.9
+                fillOpacity: 1,
+                //轮廓线样式，实线:solid，虚线:dashed
+                strokeStyle:'dashed',
+                /*勾勒形状轮廓的虚线和间隙的样式，此属性在strokeStyle 为dashed 时有效， 此属性在    
+                  ie9+浏览器有效 取值： 
+                  实线：[0,0,0] 
+                  虚线：[10,10] ，[10,10] 表示10个像素的实线和10个像素的空白（如此反复）组成的虚线
+                  点画线：[10,2,10]， [10,2,10] 表示10个像素的实线和2个像素的空白 + 10个像素的实 
+                  线和10个像素的空白 （如此反复）组成的虚线*/
+                strokeDasharray:[10,2,10]
+            });
+            polygon.setPath(pathArray);
+            map.add(polygon);
+
+
+            //**********
+
+        });
+    }
+    drawBounds();
+
+    //点聚合113.101998  36.188925
+     var cluster, markers = [];
+    var points = [{"lnglat":["112.917977","36.406965"]},{"lnglat":["113.101998","36.188925"]},{"lnglat":["113.101908","36.088925"]}];
+    for (var i = 0; i < points.length; i += 1) {
+        markers.push(new AMap.Marker({
+            position: points[i]['lnglat'],
+            content: '<div style="background-color: hsla(180, 100%, 50%, 0.7); height: 24px; width: 24px; border: 1px solid hsl(180, 100%, 40%); border-radius: 12px; box-shadow: hsl(180, 100%, 50%) 0px 0px 1px;"></div>',
+            offset: new AMap.Pixel(-15, -15)
+        }))
+    }
+
+    var count = markers.length;
+    console.log(count.length);
+    var _renderClusterMarker = function (context) {
+        var factor = Math.pow(context.count / count, 1 / 18);
+        var div = document.createElement('div');
+        var Hue = 180 - factor * 180;
+        var bgColor = 'hsla(' + Hue + ',100%,50%,0.7)';
+        var fontColor = 'hsla(' + Hue + ',100%,20%,1)';
+        var borderColor = 'hsla(' + Hue + ',100%,40%,1)';
+        var shadowColor = 'hsla(' + Hue + ',100%,50%,1)';
+        div.style.backgroundColor = bgColor;
+        var size = Math.round(30 + Math.pow(context.count / count, 1 / 5) * 20);
+        div.style.width = div.style.height = size + 'px';
+        div.style.border = 'solid 1px ' + borderColor;
+        div.style.borderRadius = size / 2 + 'px';
+        div.style.boxShadow = '0 0 1px ' + shadowColor;
+        div.innerHTML = context.count;
+        div.style.lineHeight = size + 'px';
+        div.style.color = fontColor;
+        div.style.fontSize = '14px';
+        div.style.textAlign = 'center';
+        context.marker.setOffset(new AMap.Pixel(-size / 2, -size / 2));
+        context.marker.setContent(div)
+    };
+
+    addCluster(2);
+    function addCluster(tag) {
+        if (cluster) {
+            cluster.setMap(null);
+        }
+        if (tag == 2) {//完全自定义
+            cluster = new AMap.MarkerClusterer(map, markers, {
+                gridSize: 80,
+                renderClusterMarker: _renderClusterMarker
+            });
+        } else if (tag == 1) {//自定义图标
+            var sts = [{
+                url: "https://a.amap.com/jsapi_demos/static/images/blue.png",
+                size: new AMap.Size(32, 32),
+                offset: new AMap.Pixel(-16, -16)
+            }, {
+                url: "https://a.amap.com/jsapi_demos/static/images/green.png",
+                size: new AMap.Size(32, 32),
+                offset: new AMap.Pixel(-16, -16)
+            }, {
+                url: "https://a.amap.com/jsapi_demos/static/images/orange.png",
+                size: new AMap.Size(36, 36),
+                offset: new AMap.Pixel(-18, -18)
+            }, {
+                url: "https://a.amap.com/jsapi_demos/static/images/red.png",
+                size: new AMap.Size(48, 48),
+                offset: new AMap.Pixel(-24, -24)
+            }, {
+                url: "https://a.amap.com/jsapi_demos/static/images/darkRed.png",
+                size: new AMap.Size(48, 48),
+                offset: new AMap.Pixel(-24, -24)
+            }];
+            cluster = new AMap.MarkerClusterer(map, markers, {
+                styles: sts,
+                gridSize: 80
+            });
+        } else {//默认样式
+            cluster = new AMap.MarkerClusterer(map, markers, {gridSize: 80});
+        }
+    }
+   
+</script>
+</body>
+</html>

@@ -31,4 +31,8 @@ export class MapDataService {
     }
     return this.carGpsObs.LmObservable();
   }
+
+  getShenzhenGeo() {
+    return this.http.get('./assets/json/440300.json');
+  }
 }

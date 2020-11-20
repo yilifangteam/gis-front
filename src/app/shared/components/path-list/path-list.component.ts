@@ -69,6 +69,7 @@ export class PathListComponent implements OnInit, AfterViewInit, OnDestroy {
       this.baseData = d;
       this.query();
       this.fine1MapSrv.showCar(this.baseData.carGps);
+      this.fine1MapSrv.fitMap();
       this.mapDataSrv
         .getCarRealTimeGps()
         .pipe(takeUntil(this.destroy$))
@@ -150,6 +151,10 @@ export class PathListComponent implements OnInit, AfterViewInit, OnDestroy {
     // this.geo.updateSize();
     // this.locate();
     this.fine1MapSrv.initMap();
+    this.mapDataSrv.getShenzhenGeo().subscribe((x) => {
+      // this.fine1MapSrv.showArea(x);
+      this.fine1MapSrv.clipMap(x);
+    });
   }
 
   selectedIndexChange($event) {

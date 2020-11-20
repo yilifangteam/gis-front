@@ -28,6 +28,9 @@ export class PathListComponent implements OnInit, AfterViewInit, OnDestroy {
   ) {}
 
   @ViewChild('carTpl', { static: false }) carTpl?: TemplateRef<{}>;
+  @ViewChild('crapTpl', { static: false }) crapTpl?: TemplateRef<{}>;
+  @ViewChild('baseTpl', { static: false }) baseTpl?: TemplateRef<{}>;
+  @ViewChild('transferTpl', { static: false }) transferTpl?: TemplateRef<{}>;
   geolocation: Geolocation;
 
   /**
@@ -69,7 +72,9 @@ export class PathListComponent implements OnInit, AfterViewInit, OnDestroy {
       this.baseData = d;
       this.query();
       this.fine1MapSrv.showCar(this.baseData.carGps);
-      this.fine1MapSrv.fitMap();
+      this.fine1MapSrv.showCrapSite(this.baseData.siteGps);
+      this.fine1MapSrv.showBase(this.baseData.destructorPlant);
+      this.fine1MapSrv.fitMap(this.fine1MapSrv.crapSource);
       this.mapDataSrv
         .getCarRealTimeGps()
         .pipe(takeUntil(this.destroy$))
@@ -172,9 +177,27 @@ export class PathListComponent implements OnInit, AfterViewInit, OnDestroy {
   addTipBoxList(item) {
     item.checked = true;
     if (this.tipBoxLimit <= this.tipBoxList.length) {
-      this.subTipBoxList(this.tipBoxList[0]);
+      this.subTipBoxList(this.tipBoxList[0], false);
     }
-    const nty = this.notificationSrv.template(this.carTpl, {
+    let tpl;
+    switch (this.tabIndex) {
+      case 0:
+        tpl = this.carTpl;
+        break;
+      case 1:
+        tpl = this.crapTpl;
+        break;
+      case 2:
+        tpl = this.baseTpl;
+        break;
+      case 3:
+        tpl = this.transferTpl;
+        break;
+
+      default:
+        break;
+    }
+    const nty = this.notificationSrv.template(tpl, {
       nzClass: 'fine1-ntf',
       nzData: item,
       nzDuration: 0,
@@ -188,13 +211,17 @@ export class PathListComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     });
     this.tipBoxList.push(item);
+    this.fine1MapSrv.focusPoint([item.longitude, item.latitude]);
   }
 
-  subTipBoxList(item) {
+  subTipBoxList(item, autoFit = true) {
     item.checked = false;
     this.notificationSrv.remove(item.ntfId);
     item.ntfId = '';
     this.tipBoxList = this.tipBoxList.filter((t) => t !== item);
+    if (autoFit) {
+      this.fine1MapSrv.fitMap(this.fine1MapSrv.crapSource);
+    }
   }
 
   viewHistory(item) {

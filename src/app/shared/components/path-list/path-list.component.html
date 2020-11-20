@@ -75,7 +75,7 @@
 
         <ng-container *ngIf="tabIndex == 1">
           <nz-list nzSize="small">
-            <nz-list-item *ngFor="let item of pageData">
+            <nz-list-item *ngFor="let item of pageData" class="pointer" (click)="checkChange(!item.checked, item)">
               <nz-space>
                 <nz-space-item>
                   <label nz-checkbox [(ngModel)]="item.checked" (ngModelChange)="checkChange($event, item)"></label>
@@ -105,7 +105,7 @@
 
         <ng-container *ngIf="tabIndex == 2">
           <nz-list nzSize="small">
-            <nz-list-item *ngFor="let item of pageData">
+            <nz-list-item *ngFor="let item of pageData" class="pointer" (click)="checkChange(!item.checked, item)">
               <nz-space>
                 <nz-space-item>
                   <label nz-checkbox [(ngModel)]="item.checked" (ngModelChange)="checkChange($event, item)"></label>
@@ -135,7 +135,7 @@
 
         <ng-container *ngIf="tabIndex == 3">
           <nz-list nzSize="small">
-            <nz-list-item *ngFor="let item of pageData">
+            <nz-list-item *ngFor="let item of pageData" class="pointer" (click)="checkChange(!item.checked, item)">
               <nz-space>
                 <nz-space-item>
                   <label nz-checkbox [(ngModel)]="item.checked" (ngModelChange)="checkChange($event, item)"></label>
@@ -209,6 +209,74 @@
   </div> -->
 
   <ng-template #carTpl let-item="data">
+    <div class="ant-notification-notice-content">
+      <div class="ant-notification-notice-content">
+        <div>
+          <div class="ant-notification-notice-message">
+            {{ item.carNum }} {{ item.comClearTypeName && '[' + item.comClearTypeName + ']' }}
+          </div>
+          <div class="ant-notification-notice-description">
+            <div>
+              <p>垃圾分类：{{ item.comClearTypeName }}</p>
+              <p>车辆状态：{{ item.speedStatus }}</p>
+              <p>行驶速度：{{ item.speed }}km/h</p>
+              <p>
+                操作：
+                <a>查看实时监控</a> <nz-divider nzType="vertical"></nz-divider>
+                <a (click)="viewHistory(item)">查看历史轨迹</a>
+                <!-- <nz-space nzSize="small">
+                  <nz-space-item>
+                   
+                  </nz-space-item>
+                  <nz-space-item>
+                    <a nz-button nzType="link" nzBlock>查看历史轨迹</a>
+                  </nz-space-item>
+                </nz-space> -->
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+
+  <ng-template #crapTpl let-item="data">
+    <div class="ant-notification-notice-content">
+      <div class="ant-notification-notice-content">
+        <div>
+          <div class="ant-notification-notice-message">
+            {{ item.Name }}
+          </div>
+          <div class="ant-notification-notice-description">
+            <div>
+              <p>垃圾点类型：{{ item.siteTypeName }}</p>
+              <p>垃圾分类：{{ item.workContentName }}</p>
+              <p>垃圾点地址：{{ item.site }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+
+  <ng-template #baseTpl let-item="data">
+    <div class="ant-notification-notice-content">
+      <div class="ant-notification-notice-content">
+        <div>
+          <div class="ant-notification-notice-message">
+            {{ item.plantName }}
+          </div>
+          <div class="ant-notification-notice-description">
+            <div>
+              <p>基地地址：{{ item.plantAddress }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+
+  <ng-template #transferTpl let-item="data">
     <div class="ant-notification-notice-content">
       <div class="ant-notification-notice-content">
         <div>

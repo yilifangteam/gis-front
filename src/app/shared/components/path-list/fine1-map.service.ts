@@ -41,6 +41,26 @@ export class Fine1MapService {
   mainLayer: TileLayer;
   vectorLayer: VectorLayer;
   source: VectorSource;
+  /**
+   * 车
+   */
+  carSource: VectorSource;
+  carLayer: VectorLayer;
+  /**
+   * 垃圾点
+   */
+  crapSource: VectorSource;
+  crapLayer: VectorLayer;
+  /**
+   * 基地
+   */
+  baseSource: VectorSource;
+  baseLayer: VectorLayer;
+  /**
+   * 中转
+   */
+  transferSource: VectorSource;
+  transferLayer: VectorLayer;
   animating = false;
   styles;
 
@@ -76,6 +96,34 @@ export class Fine1MapService {
       source: this.source,
     });
 
+    this.carSource = new VectorSource({
+      features: [],
+    });
+    this.carLayer = new VectorLayer({
+      source: this.carSource,
+    });
+
+    this.crapSource = new VectorSource({
+      features: [],
+    });
+    this.crapLayer = new VectorLayer({
+      source: this.crapSource,
+    });
+
+    this.baseSource = new VectorSource({
+      features: [],
+    });
+    this.baseLayer = new VectorLayer({
+      source: this.baseSource,
+    });
+
+    this.transferSource = new VectorSource({
+      features: [],
+    });
+    this.transferLayer = new VectorLayer({
+      source: this.transferSource,
+    });
+
     this.view = new View({
       center: this.center,
       zoom: 19,
@@ -90,13 +138,12 @@ export class Fine1MapService {
       }),
     });
     this.map = new Map({
-      layers: [this.mainLayer, this.vectorLayer],
+      layers: [this.mainLayer, this.vectorLayer, this.carLayer, this.crapLayer, this.baseLayer, this.transferLayer],
       keyboardEventTarget: document,
       target,
       view: this.view,
       controls: [], // defaultControls().extend([new ZoomSlider()]),
     });
-    this.fitMap();
   }
 
   showArea(geo: any[] = []) {
@@ -150,7 +197,7 @@ export class Fine1MapService {
     const usaGeometry = features[0].getGeometry();
     const fExtent = usaGeometry.getExtent();
     // this.view.fit(fExtent);
-    this.fitMap();
+    // this.fitMap();
     const fillStyle = new Fill({
       color: [0, 0, 0, 0],
     });
@@ -181,9 +228,10 @@ export class Fine1MapService {
     });
   }
 
-  fitMap() {
+  fitMap(target: any) {
     const pointArr = [];
-    this.source.getFeatures().forEach((ele) => {
+    const targetSource = target;
+    targetSource.getFeatures().forEach((ele) => {
       pointArr.push(this.one(ele.getGeometry()));
     });
     // 假设第一个点为最合适的点
@@ -211,24 +259,32 @@ export class Fine1MapService {
     });
 
     // 没有数据
-    if (this.source.getFeatures().length == 0) {
+    if (targetSource.getFeatures().length == 0) {
       return;
     }
     // 单个DOM
-    else if (this.source.getFeatures().length == 1) {
+    else if (targetSource.getFeatures().length == 1) {
       this.map
         .getView()
         .centerOn([fit_point[0], fit_point[1]], this.map.getSize(), [document.body.clientWidth / 2, document.body.clientHeight / 2]);
 
-      this.map.getView().setZoom(12);
+      this.map.getView().setZoom(14);
     }
     // 多个dom
     else {
-      this.map.getView().fit(fit_point, {
-        size: this.map.getSize(),
-        padding: [100, 100, 100, 100],
-        // constrainResolution: false,
-      });
+      // this.map.getView().fit(fit_point, {
+      //   size: this.map.getSize(),
+      //   padding: [100, 100, 100, 100],
+      //   // constrainResolution: false,
+      // });
+      this.map
+        .getView()
+        .centerOn(
+          [(fit_point[2] - fit_point[0]) / 2 + fit_point[0], (fit_point[3] - fit_point[1]) / 2 + fit_point[1]],
+          this.map.getSize(),
+          [document.body.clientWidth / 2, document.body.clientHeight / 2],
+        );
+      this.map.getView().setZoom(14);
     }
   }
   one(dom: any) {
@@ -301,6 +357,14 @@ export class Fine1MapService {
     return one_p;
   }
 
+  focusPoint(point: [number, number]) {
+    this.map
+      .getView()
+      .centerOn(fromEPSG4326([point[0], point[1]]), this.map.getSize(), [document.body.clientWidth / 2, document.body.clientHeight / 2]);
+
+    this.map.getView().setZoom(16);
+  }
+
   /**
    * 展示车的位置
    */
@@ -345,8 +409,8 @@ export class Fine1MapService {
       ]);
       carMarkers.push(f);
     });
-    this.source.clear();
-    this.source.addFeatures(carMarkers);
+    this.carSource.clear();
+    this.carSource.addFeatures(carMarkers);
   }
 
   /**
@@ -355,4 +419,147 @@ export class Fine1MapService {
   showRealTimeCar() {}
 
   showCarHistoryLine(car: any) {}
+
+  /**
+   * 垃圾点
+   */
+  showCrapSite(craps: any[] = []) {
+    const crapMarkers = [];
+
+    craps.forEach((c) => {
+      const f = new Feature({
+        type: 'crapMarker',
+        geometry: new Point(fromEPSG4326([c.longitude, c.latitude])),
+      });
+      f.setStyle([
+        new Style({
+          text: new Text({
+            // 对其方式
+            textAlign: 'center',
+            // 基准线
+            textBaseline: 'middle',
+            offsetY: -40,
+            // 文字样式
+            font: 'normal 16px 黑体',
+            // 文本内容
+            text: c.Name,
+            // 文本填充样式
+            fill: new Fill({
+              color: 'rgba(255,255,255,1)',
+            }),
+            padding: [5, 15, 5, 15],
+            backgroundFill: new Fill({
+              color: 'rgba(0,0,0,0.6)',
+            }),
+          }),
+          image: new Icon({
+            // 比例 左上[0,0]  左下[0,1]  右下[1，1]
+            anchor: [0.5, 1],
+            src: c.iconPath,
+            // imgSize: [54, 97],
+            scale: 0.5,
+            rotation: c.gpscourse,
+          }),
+        }),
+      ]);
+      crapMarkers.push(f);
+    });
+    this.crapSource.clear();
+    this.crapSource.addFeatures(crapMarkers);
+  }
+
+  /**
+   * 基地
+   */
+  showBase(bases: any[] = []) {
+    const baseMarkers = [];
+
+    bases.forEach((c) => {
+      const f = new Feature({
+        type: 'baseMarker',
+        geometry: new Point(fromEPSG4326([c.longitude, c.latitude])),
+      });
+      f.setStyle([
+        new Style({
+          text: new Text({
+            // 对其方式
+            textAlign: 'center',
+            // 基准线
+            textBaseline: 'middle',
+            offsetY: -40,
+            // 文字样式
+            font: 'normal 16px 黑体',
+            // 文本内容
+            text: c.plantName,
+            // 文本填充样式
+            fill: new Fill({
+              color: 'rgba(255,255,255,1)',
+            }),
+            padding: [5, 15, 5, 15],
+            backgroundFill: new Fill({
+              color: 'rgba(0,0,0,0.6)',
+            }),
+          }),
+          image: new Icon({
+            // 比例 左上[0,0]  左下[0,1]  右下[1，1]
+            anchor: [0.5, 1],
+            src: c.iconPath || './assets/images/base.svg',
+            // imgSize: [54, 97],
+            scale: 0.5,
+            rotation: c.gpscourse,
+          }),
+        }),
+      ]);
+      baseMarkers.push(f);
+    });
+    this.baseSource.clear();
+    this.baseSource.addFeatures(baseMarkers);
+  }
+
+  /**
+   * 中转
+   */
+  showTransfer(transfers: any[] = []) {
+    // const baseMarkers = [];
+    // bases.forEach((c) => {
+    //   const f = new Feature({
+    //     type: 'baseMarker',
+    //     geometry: new Point(fromEPSG4326([c.longitude, c.latitude])),
+    //   });
+    //   f.setStyle([
+    //     new Style({
+    //       text: new Text({
+    //         // 对其方式
+    //         textAlign: 'center',
+    //         // 基准线
+    //         textBaseline: 'middle',
+    //         offsetY: -50,
+    //         // 文字样式
+    //         font: 'normal 16px 黑体',
+    //         // 文本内容
+    //         text: c.plantName,
+    //         // 文本填充样式
+    //         fill: new Fill({
+    //           color: 'rgba(255,255,255,1)',
+    //         }),
+    //         padding: [5, 15, 5, 15],
+    //         backgroundFill: new Fill({
+    //           color: 'rgba(0,0,0,0.6)',
+    //         }),
+    //       }),
+    //       image: new Icon({
+    //         // 比例 左上[0,0]  左下[0,1]  右下[1，1]
+    //         anchor: [0.5, 1],
+    //         src: c.iconPath || './assets/images/base.svg',
+    //         // imgSize: [54, 97],
+    //         scale: 0.5,
+    //         rotation: c.gpscourse,
+    //       }),
+    //     }),
+    //   ]);
+    //   baseMarkers.push(f);
+    // });
+    // this.baseSource.clear();
+    // this.baseSource.addFeatures(baseMarkers);
+  }
 }

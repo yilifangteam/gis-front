@@ -222,7 +222,7 @@
               <p>行驶速度：{{ item.speed }}km/h</p>
               <p>
                 操作：
-                <a>查看实时监控</a> <nz-divider nzType="vertical"></nz-divider>
+                <a (click)="viewVideo(item)">查看实时监控</a> <nz-divider nzType="vertical"></nz-divider>
                 <a (click)="viewHistory(item)">查看历史轨迹</a>
                 <!-- <nz-space nzSize="small">
                   <nz-space-item>
@@ -290,7 +290,7 @@
               <p>行驶速度：{{ item.speed }}km/h</p>
               <p>
                 操作：
-                <a>查看实时监控</a> <nz-divider nzType="vertical"></nz-divider>
+                <a (click)="viewVideo(item)">查看实时监控</a> <nz-divider nzType="vertical"></nz-divider>
                 <a (click)="viewHistory(item)">查看历史轨迹</a>
                 <!-- <nz-space nzSize="small">
                   <nz-space-item>
@@ -306,5 +306,9 @@
         </div>
       </div>
     </div>
+  </ng-template>
+
+  <ng-template #videoTpl let-params>
+    <div id="videoMonitoring" style="height: 332px"></div>
   </ng-template>
 </div>

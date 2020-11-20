@@ -1,9 +1,7 @@
 import { Injectable } from '@angular/core';
 import { CacheService } from '@delon/cache';
 import { _HttpClient } from '@delon/theme';
-import { LmWebSocket } from '@shared';
-import { fine1Url, UrlConfig, urlSerialize } from 'src/app/shared/utils/url';
-
+import { fine1Url, LmWebSocket, UrlConfig, urlSerialize } from '@shared';
 @Injectable({
   providedIn: 'root',
 })

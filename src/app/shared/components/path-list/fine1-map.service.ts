@@ -449,7 +449,7 @@ export class Fine1MapService {
             }),
             padding: [5, 15, 5, 15],
             backgroundFill: new Fill({
-              color: 'rgba(0,0,0,0.6)',
+              color: '#48C23D',
             }),
           }),
           image: new Icon({
@@ -497,7 +497,7 @@ export class Fine1MapService {
             }),
             padding: [5, 15, 5, 15],
             backgroundFill: new Fill({
-              color: 'rgba(0,0,0,0.6)',
+              color: '#239DD5',
             }),
           }),
           image: new Icon({

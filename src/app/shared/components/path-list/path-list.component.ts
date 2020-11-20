@@ -27,10 +27,13 @@ export class PathListComponent implements OnInit, AfterViewInit, OnDestroy {
     private viewContainerRef: ViewContainerRef,
   ) {}
 
+  player;
+
   @ViewChild('carTpl', { static: false }) carTpl?: TemplateRef<{}>;
   @ViewChild('crapTpl', { static: false }) crapTpl?: TemplateRef<{}>;
   @ViewChild('baseTpl', { static: false }) baseTpl?: TemplateRef<{}>;
   @ViewChild('transferTpl', { static: false }) transferTpl?: TemplateRef<{}>;
+  @ViewChild('videoTpl', { static: false }) videoTpl?: TemplateRef<{}>;
   geolocation: Geolocation;
 
   /**
@@ -235,6 +238,37 @@ export class PathListComponent implements OnInit, AfterViewInit, OnDestroy {
       nzWidth: '720px',
       nzZIndex: 1020,
       nzCancelText: null,
+    });
+  }
+
+  viewVideo(item) {
+    const modal = this.modal.create({
+      nzTitle: item.carNum,
+      nzContent: this.videoTpl,
+      nzViewContainerRef: this.viewContainerRef,
+
+      nzWidth: '720px',
+      nzZIndex: 1020,
+      nzCancelText: null,
+    });
+    modal.afterOpen.subscribe((x) => {
+      this.playLive(item);
+    });
+    modal.afterClose.subscribe((x) => {
+      this.player = null;
+    });
+  }
+
+  playLive(item) {
+    this.player = new ckplayer({
+      container: '#videoMonitoring',
+      variable: 'player',
+      crossorigin: 'Anonymous',
+      autoplay: true,
+      flashplayer: false,
+      live: true,
+      html5m3u8: true,
+      video: item.videoUrl,
     });
   }
 

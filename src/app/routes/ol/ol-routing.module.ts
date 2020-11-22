@@ -3,6 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { ExtentConstrainedComponent } from './extent-constrained/extent-constrained.component';
 import { FeatureMoveAnimationComponent } from './feature-move-animation/feature-move-animation.component';
 import { LineArrowsComponent } from './line-arrows/line-arrows.component';
+import { TrackComponent } from './track/track.component';
 
 const routes: Routes = [
   {
@@ -16,6 +17,10 @@ const routes: Routes = [
   {
     path: 'feature-move-animation',
     component: FeatureMoveAnimationComponent,
+  },
+  {
+    path: 'track',
+    component: TrackComponent,
   },
 ];
 

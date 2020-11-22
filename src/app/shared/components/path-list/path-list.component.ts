@@ -9,6 +9,7 @@ import { takeUntil } from 'rxjs/operators';
 import { chunkArray } from '../../utils/array';
 import { Fine1MapService } from './fine1-map.service';
 import { PathHistoryComponent } from './path-history.component';
+import { PathRealTimeComponent } from './path-real-time.component';
 
 @Component({
   selector: 'ipt-path-list',
@@ -225,6 +226,21 @@ export class PathListComponent implements OnInit, AfterViewInit, OnDestroy {
     if (autoFit) {
       this.fine1MapSrv.fitMap(this.fine1MapSrv.crapSource);
     }
+  }
+
+  viewRealTime(item) {
+    const modal = this.modal.create({
+      nzTitle: item.carNum,
+      nzContent: PathRealTimeComponent,
+      nzViewContainerRef: this.viewContainerRef,
+      nzComponentParams: {
+        car: item,
+      },
+      nzWidth: '720px',
+      nzZIndex: 1020,
+      nzCancelText: null,
+      nzOkText: '关闭',
+    });
   }
 
   viewHistory(item) {

@@ -1,13 +1,16 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { CacheService } from '@delon/cache';
 import { _HttpClient } from '@delon/theme';
 import { fine1Url, LmWebSocket, UrlConfig, urlSerialize } from '@shared';
 @Injectable({
   providedIn: 'root',
 })
-export class MapDataService {
+export class MapDataService implements OnDestroy {
   private carGpsObs: LmWebSocket;
   constructor(private http: _HttpClient, private cacheSrv: CacheService) {}
+  ngOnDestroy(): void {
+    this.carGpsObs.close();
+  }
 
   getGpsData() {
     return this.http.post(fine1Url(UrlConfig.dashboard1), {

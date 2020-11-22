@@ -1,6 +1,5 @@
 import { Component, Input } from '@angular/core';
 import { _HttpClient } from '@delon/theme';
-import polyline from '@mapbox/polyline';
 import { MapDataService } from '@service/common/map.data.service';
 import { NzModalRef, NzModalService } from 'ng-zorro-antd/modal';
 import { defaults as defaultControls } from 'ol/control';

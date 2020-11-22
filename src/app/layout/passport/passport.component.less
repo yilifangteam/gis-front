@@ -1,10 +1,24 @@
-@import '~@delon/theme/index';
+// @import '~@delon/theme/index';
+@import '/src/styles/theme.less';
 :host ::ng-deep {
   .container {
     display: flex;
     flex-direction: column;
+    // width: 1920px;
+    // height: 1080px;
     min-height: 100%;
     background: #f0f2f5;
+    background-image: url('/assets/images/bg.jpg');
+    background-repeat: no-repeat;
+    background-size: 100%;
+  }
+  .global-footer__copyright {
+    position: absolute;
+    bottom: 14px;
+    width: 100%;
+    margin: 0 auto;
+    color: white;
+    font-size: 14px;
   }
   .langs {
     width: 100%;
@@ -20,6 +34,9 @@
     }
   }
   .wrap {
+    position: absolute;
+    top: 178.48px;
+    left: 970.11px;
     flex: 1;
     padding: 32px 0;
   }
@@ -29,18 +46,20 @@
     margin-bottom: 24px;
   }
 
-  @media (min-width: @screen-md-min) {
-    .container {
-      background-image: url('https://gw.alipayobjects.com/zos/rmsportal/TVYTbAXWheQpRcWDaDMu.svg');
-      background-repeat: no-repeat;
-      background-position: center 110px;
-      background-size: 100%;
+  .code-img {
+    display: flex;
+    img {
+      height: 100%;
     }
+  }
+
+  @media (min-width: @screen-md-min) {
     .wrap {
       padding: 32px 0 24px;
     }
   }
   .top {
+    margin-bottom: 24px;
     text-align: center;
   }
   .header {
@@ -56,7 +75,7 @@
   }
   .title {
     position: relative;
-    color: @heading-color;
+    color: @primary-color;
     font-weight: 600;
     font-size: 33px;
     font-family: 'Myriad Pro', 'Helvetica Neue', Arial, Helvetica, sans-serif;

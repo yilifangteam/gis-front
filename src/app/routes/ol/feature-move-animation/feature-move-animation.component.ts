@@ -1,6 +1,5 @@
 import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { _HttpClient } from '@delon/theme';
-import polyline from '@mapbox/polyline';
 import { defaults as defaultControls } from 'ol/control';
 import { ZoomSlider } from 'ol/control';
 import { Extent, getBottomLeft } from 'ol/extent';

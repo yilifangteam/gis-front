@@ -16,5 +16,12 @@
         "url": "ws://49.234.204.23:9934/app/car/gps",
         "test": false,
         "pUrl": "ws://49.234.204.23:9934/app/car/gps"
+    },
+    "dashboard3": {
+        "name": "验证码",
+        "url": "http://49.234.204.23:7903/sys/verify/getCode",
+        "test": false,
+        "pUrl": "http://49.234.204.23:7903/sys/verify/getCode?0.2507244431410398"
     }
+    
 }

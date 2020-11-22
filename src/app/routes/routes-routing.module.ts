@@ -19,13 +19,13 @@ import { UserRegisterResultComponent } from './passport/register-result/register
 import { UserRegisterComponent } from './passport/register/register.component';
 
 const routes: Routes = [
+  // {
+  //   path: '',
+  //   component: HomeComponent,
+  // },
+
   {
     path: '',
-    component: HomeComponent,
-  },
-  { path: 'ol', loadChildren: () => import('./ol/ol.module').then((m) => m.OlModule) },
-  {
-    path: 'manage',
     component: LayoutDefaultComponent,
     canActivate: [SimpleGuard],
     children: [
@@ -36,6 +36,7 @@ const routes: Routes = [
       // { path: 'widgets', loadChildren: () => import('./widgets/widgets.module').then(m => m.WidgetsModule) },
     ],
   },
+  { path: 'ol', loadChildren: () => import('./ol/ol.module').then((m) => m.OlModule) },
   // 全屏布局
   // {
   //     path: 'fullscreen',

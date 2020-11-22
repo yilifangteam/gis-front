@@ -6,6 +6,7 @@ export const UrlConfig = {
   dashboard: 'dashboard',
   dashboard1: 'dashboard1',
   dashboard2: 'dashboard2',
+  dashboard3: 'dashboard3',
 };
 
 export function urlSerialize(url: string, dashboard: string, isAuth = true) {

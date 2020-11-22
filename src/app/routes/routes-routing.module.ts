@@ -19,13 +19,13 @@ import { UserRegisterResultComponent } from './passport/register-result/register
 import { UserRegisterComponent } from './passport/register/register.component';
 
 const routes: Routes = [
-  // {
-  //   path: '',
-  //   component: HomeComponent,
-  // },
-
   {
     path: '',
+    component: HomeComponent,
+  },
+
+  {
+    path: 'manage',
     component: LayoutDefaultComponent,
     canActivate: [],
     children: [

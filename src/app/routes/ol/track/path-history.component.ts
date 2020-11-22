@@ -74,26 +74,25 @@ export class TrackPathHistoryComponent implements OnInit {
 
   constructor(private mapDataSrv: MapDataService, private modalSrv: NzModalService, private http: _HttpClient) {}
   ngOnInit(): void {
-    this.http
-      .post('https://garbagesortingcity.fine1.com.cn/8888/influxdb/health/selectByTable', {
-        comCode: 'cus000001cus000007',
-        tbName: 'carGps',
-        timePoliy: '天',
-        carNum: '粤BDL1013',
-      })
-      .subscribe((d: any[]) => {
-        if (d) {
-          const l = d.map((j) => fromEPSG4326([j.longitude, j.latitude]));
-          // this.polyLine = new Feature({
-          //   opt_geometryOrProperties: new LineString(l, GeometryLayout.XYZ),
-          // });
-          this.polyLine = new LineString(l, GeometryLayout.XYZ);
-
-          this.initMap();
-        } else {
-          this.modalSrv.warning({ nzTitle: '该车辆暂无历史数据', nzZIndex: 1030 });
-        }
-      });
+    // this.http
+    //   .post('https://garbagesortingcity.fine1.com.cn/8888/influxdb/health/selectByTable', {
+    //     comCode: 'cus000001cus000007',
+    //     tbName: 'carGps',
+    //     timePoliy: '天',
+    //     carNum: '粤BDL1013',
+    //   })
+    //   .subscribe((d: any[]) => {
+    //     if (d) {
+    //       const l = d.map((j) => fromEPSG4326([j.longitude, j.latitude]));
+    //       // this.polyLine = new Feature({
+    //       //   opt_geometryOrProperties: new LineString(l, GeometryLayout.XYZ),
+    //       // });
+    //       this.polyLine = new LineString(l, GeometryLayout.XYZ);
+    //       this.initMap();
+    //     } else {
+    //       this.modalSrv.warning({ nzTitle: '该车辆暂无历史数据', nzZIndex: 1030 });
+    //     }
+    //   });
   }
 
   initMap() {

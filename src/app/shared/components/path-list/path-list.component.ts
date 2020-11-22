@@ -238,6 +238,7 @@ export class PathListComponent implements OnInit, AfterViewInit, OnDestroy {
       nzWidth: '720px',
       nzZIndex: 1020,
       nzCancelText: null,
+      nzOkText: '关闭',
     });
   }
 
@@ -250,6 +251,7 @@ export class PathListComponent implements OnInit, AfterViewInit, OnDestroy {
       nzWidth: '720px',
       nzZIndex: 1020,
       nzCancelText: null,
+      nzOkText: '关闭',
     });
     modal.afterOpen.subscribe((x) => {
       this.playLive(item);

@@ -61,6 +61,20 @@ export class Fine1MapService {
    */
   transferSource: VectorSource;
   transferLayer: VectorLayer;
+
+  /**
+   * 历史轨迹
+   */
+  historySource: VectorSource;
+  historyLayer: VectorLayer;
+  animatingPoint: Feature;
+
+  /**
+   * 实时轨迹
+   */
+  realTimeSource: VectorSource;
+  realTimeLayer: VectorLayer;
+
   animating = false;
   styles;
 
@@ -129,7 +143,7 @@ export class Fine1MapService {
       zoom: 19,
       // extent,
       projection: prj,
-      // resolutions,
+      resolutions,
     });
     this.mainLayer = new TileLayer({
       source: new XYZ({
@@ -418,7 +432,70 @@ export class Fine1MapService {
    */
   showRealTimeCar() {}
 
-  showCarHistoryLine(car: any) {}
+  showCarHistoryLine(car: any, speed = 60, linePath: any[]) {
+    if (!this.historySource) {
+      this.historyLayer = new VectorLayer();
+      this.historySource = new VectorSource();
+      this.historyLayer.setSource(this.historySource);
+      this.map.addLayer(this.historyLayer);
+    } else {
+      this.historySource.clear();
+    }
+    const lineStyle = new Style({
+      stroke: new Stroke({
+        width: 10,
+        color: '#459C50',
+      }),
+    });
+    const pointStyle = new Style({
+      image: new Icon({
+        src: './assets/images/navigation.png',
+        anchor: [0.5, 0.5],
+        scale: 0.5,
+        rotateWithView: true,
+      }),
+    });
+    const textStyle = new Style({
+      text: new Text({
+        // 对其方式
+        textAlign: 'center',
+        // 基准线
+        textBaseline: 'middle',
+        offsetY: -30,
+        // 文字样式
+        font: 'normal 16px 黑体',
+        // 文本内容
+        text: car.carNum,
+        // 文本填充样式
+        fill: new Fill({
+          color: 'rgba(255,255,255,1)',
+        }),
+        padding: [5, 15, 5, 15],
+        backgroundFill: new Fill({
+          color: 'rgba(0,0,0,0.6)',
+        }),
+      }),
+    });
+    if (linePath && linePath.length > 0) {
+      const lineData = linePath.map((c) => fromEPSG4326([c.longitude, c.latitude]));
+      // 画初始点
+      this.animatingPoint = new Feature({
+        type: 'initialPoint',
+        geometry: new Point(lineData[0]),
+      });
+      this.animatingPoint.setStyle(pointStyle);
+      this.historySource.addFeature(this.animatingPoint);
+
+      // 画线
+
+      const line = new Feature({
+        type: 'line',
+        geometry: new LineString(lineData),
+      });
+      line.setStyle(lineStyle);
+      this.historySource.addFeature(line);
+    }
+  }
 
   /**
    * 垃圾点

@@ -29,7 +29,7 @@ import View from 'ol/View';
     <div id="history-map" class="map"></div>
     <label for="speed" style="display:none">
       speed:&nbsp;
-      <input id="speed" type="range" min="10" max="999" step="10" value="60" />
+      <input id="speed" type="range" min="0" max="999" step="10" value="5" />
     </label>
     <!-- <img src="./assets/images/navigation.png" /> -->
     <button style="display:none" nz-button nzType="primary" id="start-animation" (click)="startAnimation()">回放</button>
@@ -71,6 +71,7 @@ export class TrackPathHistoryComponent implements OnInit {
   historyLayer;
 
   polyLine: any;
+  baseData: any;
 
   constructor(private mapDataSrv: MapDataService, private modalSrv: NzModalService, private http: _HttpClient) {}
   ngOnInit(): void {
@@ -93,20 +94,26 @@ export class TrackPathHistoryComponent implements OnInit {
     //       this.modalSrv.warning({ nzTitle: '该车辆暂无历史数据', nzZIndex: 1030 });
     //     }
     //   });
+    this.http.get('./assets/tmp/mock-path.json').subscribe((d: any) => {
+      if (d) {
+        this.baseData = d;
+        const l = d.list.map((j) => fromEPSG4326([j.Lon, j.Lat]));
+        // this.polyLine = new Feature({
+        //   opt_geometryOrProperties: new LineString(l, GeometryLayout.XYZ),
+        // });
+        this.polyLine = new LineString(l, GeometryLayout.XYZ);
+        this.initMap();
+      } else {
+        this.modalSrv.warning({ nzTitle: '该车辆暂无历史数据', nzZIndex: 1030 });
+      }
+    });
   }
 
   initMap() {
-    const resolutions = []; // 分辨率数组
-    const tileSize = 256;
-    const extent = [12665080.52765571, 2550703.6338763316, 12725465.780000998, 2601457.820657688] as Extent;
     const prj = get('EPSG:3857');
     const prjExtend = prj.getExtent();
     this.center = [12699989.526708398, 2577327.1035168194];
 
-    // 初始化分辨率数组
-    for (let i = 0; i < 19; i++) {
-      resolutions[i] = Math.pow(2, 18 - i);
-    }
     const route = this.polyLine;
     this.routeCoords = route.getCoordinates();
     this.routeLength = this.routeCoords.length;
@@ -196,6 +203,25 @@ export class TrackPathHistoryComponent implements OnInit {
           scale: 0.3,
           rotateWithView: true,
         }),
+        text: new Text({
+          // 对其方式
+          textAlign: 'center',
+          // 基准线
+          textBaseline: 'middle',
+          offsetY: -50,
+          // 文字样式
+          font: 'normal 16px 黑体',
+          // 文本内容
+          text: this.baseData.vehicle,
+          // 文本填充样式
+          fill: new Fill({
+            color: 'rgba(255,255,255,1)',
+          }),
+          padding: [5, 15, 5, 15],
+          backgroundFill: new Fill({
+            color: 'rgba(0,0,0,0.6)',
+          }),
+        }),
       }),
     };
 
@@ -276,10 +302,30 @@ export class TrackPathHistoryComponent implements OnInit {
         const dy = end[1] - start[1];
         rotation = pi90 - Math.atan2(dy, dx);
       }
-
+      const d = this.baseData.list[index];
       vectorContext.drawFeature(
         feature,
         new Style({
+          text: new Text({
+            // 对其方式
+            textAlign: 'left',
+            maxAngle: 6,
+            // 基准线
+            textBaseline: 'middle',
+            offsetY: -30,
+            // 文字样式
+            font: 'normal 12px 黑体',
+            // 文本内容
+            text: `车牌:${this.baseData.vehicle}\\n时间:${d.GPSTime}\n温度:${d.Temp1}℃\n湿度:${d.Temp2}%\n位置:${d.PlaceName}`,
+            // 文本填充样式
+            fill: new Fill({
+              color: 'red',
+            }),
+            padding: [5, 15, 5, 15],
+            backgroundFill: new Fill({
+              color: 'red',
+            }),
+          }),
           image: new Icon({
             src: './assets/images/navigation.png',
             anchor: [0.5, 0.5],
@@ -361,7 +407,7 @@ export class TrackPathHistoryComponent implements OnInit {
           this.map.getSize(),
           [document.querySelector('#history-map').clientWidth / 2, document.querySelector('#history-map').clientHeight / 2],
         );
-      this.map.getView().setZoom(11);
+      this.map.getView().setZoom(7);
     }
     // if (targetSource.getFeatures().length == 1) {
     //   this.map

@@ -1,4 +1,5 @@
 import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { _HttpClient } from '@delon/theme';
 
 @Component({
   selector: 'app-track',
@@ -6,7 +7,7 @@ import { AfterViewInit, Component, OnInit } from '@angular/core';
   styleUrls: ['./track.component.less'],
 })
 export class TrackComponent implements OnInit, AfterViewInit {
-  constructor() {}
+  constructor(private http: _HttpClient) {}
   data = [[], []];
   initNow = new Date();
   now = this.initNow;
@@ -14,6 +15,7 @@ export class TrackComponent implements OnInit, AfterViewInit {
   oneDay = 5000;
   value = 3;
   value1 = 30;
+  baseData: any = {};
 
   option = {
     title: {
@@ -92,35 +94,52 @@ export class TrackComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {}
 
   ngAfterViewInit(): void {
-    this.initMap();
+    this.http.get('./assets/tmp/mock-path.json').subscribe((d: any) => {
+      this.baseData = d;
+      this.initMap();
+    });
   }
   initMap() {
     const myChart = echarts.init(document.getElementById('f-echart'));
 
-    for (let i = 0; i < 50; i++) {
-      this.data[0].push(this.randomData());
-    }
-    for (let i = 0; i < 50; i++) {
-      this.data[1].push(this.randomData1());
-    }
+    // for (let i = 0; i < 50; i++) {
+    //   this.data[0].push(this.randomData());
+    // }
+    // for (let i = 0; i < 50; i++) {
+    //   this.data[1].push(this.randomData1());
+    // }
+    this.data[0] = this.baseData.list.map((x) => {
+      return {
+        name: x.GPSTime,
+        value: [new Date(x.GPSTime), x.Temp1],
+      };
+    });
+    this.data[1] = this.baseData.list.map((x) => {
+      return {
+        name: x.GPSTime,
+        value: [new Date(x.GPSTime), x.Temp2],
+      };
+    });
+    this.option.series[0].data = this.data[0];
+    this.option.series[1].data = this.data[1];
 
     myChart.setOption(this.option);
 
-    setInterval(() => {
-      this.data[0].shift();
-      this.data[1].shift();
-      this.data[0].push(this.randomData());
-      this.data[1].push(this.randomData1());
-      myChart.setOption({
-        series: [
-          {
-            data: this.data[0],
-          },
-          {
-            data: this.data[1],
-          },
-        ],
-      });
-    }, 5000);
+    // setInterval(() => {
+    //   this.data[0].shift();
+    //   this.data[1].shift();
+    //   this.data[0].push(this.randomData());
+    //   this.data[1].push(this.randomData1());
+    //   myChart.setOption({
+    //     series: [
+    //       {
+    //         data: this.data[0],
+    //       },
+    //       {
+    //         data: this.data[1],
+    //       },
+    //     ],
+    //   });
+    // }, 5000);
   }
 }

@@ -19,16 +19,15 @@ export class TrackComponent implements OnInit, AfterViewInit {
 
   option = {
     title: {
-      text: '实时温度/湿度',
+      text: '实时温度',
       x: 'center',
     },
     tooltip: {
       trigger: 'axis',
       formatter(params, p) {
         const p0 = params[0];
-        const p1 = params[1];
         const date = new Date(p0.name);
-        return date.toLocaleString('chinese', { hour12: false }) + '<br>温度:' + -p0.value[1] + '℃' + '<br>湿度:' + p1.value[1] + '%';
+        return date.toLocaleString('chinese', { hour12: false }) + '<br>温度:' + p0.value[1] + '℃';
       },
       axisPointer: {
         animation: false,
@@ -44,15 +43,7 @@ export class TrackComponent implements OnInit, AfterViewInit {
     yAxis: [
       {
         type: 'value',
-        name: '温度(-℃)',
-        boundaryGap: [0, '100%'],
-        splitLine: {
-          show: false,
-        },
-      },
-      {
-        type: 'value',
-        name: '湿度%',
+        name: '温度(℃)',
         boundaryGap: [0, '100%'],
         splitLine: {
           show: false,
@@ -65,9 +56,46 @@ export class TrackComponent implements OnInit, AfterViewInit {
         type: 'line',
         data: this.data[0],
       },
+    ],
+  };
+
+  option2 = {
+    title: {
+      text: '实时湿度',
+      x: 'center',
+    },
+    tooltip: {
+      trigger: 'axis',
+      formatter(params, p) {
+        const p0 = params[0];
+        const date = new Date(p0.name);
+        return date.toLocaleString('chinese', { hour12: false }) + '<br>湿度:' + p0.value[1] + '%';
+      },
+      axisPointer: {
+        animation: false,
+      },
+    },
+    xAxis: {
+      type: 'time',
+      name: '时间',
+      splitLine: {
+        show: false,
+      },
+    },
+    yAxis: [
+      {
+        type: 'value',
+        name: '湿度%',
+        boundaryGap: [0, '100%'],
+        splitLine: {
+          show: false,
+        },
+      },
+    ],
+    series: [
       {
         name: '湿度',
-        yAxisIndex: 1,
+
         type: 'line',
         data: this.data[1],
       },
@@ -121,9 +149,11 @@ export class TrackComponent implements OnInit, AfterViewInit {
       };
     });
     this.option.series[0].data = this.data[0];
-    this.option.series[1].data = this.data[1];
+    this.option2.series[0].data = this.data[1];
 
     myChart.setOption(this.option);
+    const myChart2 = echarts.init(document.getElementById('f-echart2'));
+    myChart2.setOption(this.option2);
 
     // setInterval(() => {
     //   this.data[0].shift();

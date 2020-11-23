@@ -9,7 +9,7 @@ export class MapDataService implements OnDestroy {
   private carGpsObs: LmWebSocket;
   constructor(private http: _HttpClient, private cacheSrv: CacheService) {}
   ngOnDestroy(): void {
-    this.carGpsObs.close();
+    this.carGpsObs && this.carGpsObs.close();
   }
 
   getGpsData() {

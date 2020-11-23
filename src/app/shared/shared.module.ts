@@ -1,4 +1,5 @@
 import { DragDropModule } from '@angular/cdk/drag-drop';
+import { ScrollingModule } from '@angular/cdk/scrolling';
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -12,7 +13,7 @@ import { SHARED_ZORRO_MODULES } from './shared-zorro.module';
 
 // #region third libs
 
-const THIRDMODULES = [DragDropModule];
+const THIRDMODULES = [DragDropModule, ScrollingModule];
 
 // #endregion
 

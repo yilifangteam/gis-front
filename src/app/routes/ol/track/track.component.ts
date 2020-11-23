@@ -19,7 +19,7 @@ export class TrackComponent implements OnInit, AfterViewInit {
 
   option = {
     title: {
-      text: '实时温度',
+      text: '温度',
       x: 'center',
     },
     tooltip: {
@@ -38,6 +38,9 @@ export class TrackComponent implements OnInit, AfterViewInit {
       name: '时间',
       splitLine: {
         show: false,
+      },
+      axisLine: {
+        onZero: false, // -----------重点
       },
     },
     yAxis: [
@@ -61,7 +64,7 @@ export class TrackComponent implements OnInit, AfterViewInit {
 
   option2 = {
     title: {
-      text: '实时湿度',
+      text: '湿度',
       x: 'center',
     },
     tooltip: {

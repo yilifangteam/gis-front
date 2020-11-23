@@ -66,8 +66,8 @@ import View from 'ol/View';
       <tbody>
         <tr *ngFor="let data of headerTable.data">
           <td>{{ baseData?.vehicle }}</td>
-          <td>{{ data.Temp1 }}</td>
-          <td>{{ data.Temp2 }}</td>
+          <td>{{ data.Temp1 }}℃</td>
+          <td>{{ data.Temp2 }}%</td>
           <td>{{ data.GPSTime }}</td>
           <td>{{ data.PlaceName }}</td>
         </tr>

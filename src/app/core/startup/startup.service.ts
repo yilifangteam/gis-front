@@ -69,6 +69,7 @@ export class StartupService {
           for (const key in config) {
             this.cacheSrv.set(key, config[key]);
           }
+          resolve(null);
         },
         () => {},
         () => {

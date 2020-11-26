@@ -10,7 +10,13 @@ import { TrackPathHistoryComponent } from './track/path-history.component';
 import { TrackComponent } from './track/track.component';
 
 @NgModule({
-  declarations: [ExtentConstrainedComponent, LineArrowsComponent, FeatureMoveAnimationComponent, TrackPathHistoryComponent, TrackComponent],
+  declarations: [
+    ExtentConstrainedComponent,
+    LineArrowsComponent,
+    FeatureMoveAnimationComponent,
+
+    // TrackPathHistoryComponent, TrackComponent
+  ],
   imports: [SharedModule, OlRoutingModule],
 })
 export class OlModule {}

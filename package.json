@@ -42,13 +42,16 @@
     "@ngx-translate/http-loader": "^6.0.0",
     "@types/ol": "^6.4.2",
     "ajv": "^6.12.4",
+    "classlist.js": "^1.1.20150312",
+    "core-js": "^3.7.0",
     "echarts": "^4.9.0",
     "ng-alain": "^10.0.2",
-    "ng-zorro-antd": "^10.0.1",
+    "ng-zorro-antd": "10.1.2",
     "ol": "^6.4.3",
     "rxjs": "~6.6.0",
     "screenfull": "^5.0.2",
     "tslib": "^2.0.0",
+    "web-animations-js": "^2.3.2",
     "zone.js": "~0.10.2"
   },
   "devDependencies": {

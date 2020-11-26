@@ -1,20 +1,21 @@
 <nz-card class="f-cart">
   <div nz-row [nzGutter]="[24, 24]">
-    <div nz-col nzSpan="24">物流订单编码: {{ baseData.transBillno }}</div>
+    <div nz-col nzSpan="24">物流订单编码: {{ delivetyOrderNo }}</div>
   </div>
-  <div nz-row>
-    <div nz-col nzLg="8" nzSm="24">发车时间: {{ baseData.trans_date }}</div>
-    <div nz-col nzLg="8" nzSm="24">查询时间: {{ baseData.s_date }}</div>
+  <div nz-row [nzGutter]="[24, 0]">
+    <div nz-col nzLg="8">到货时间: {{ baseData.trans_date || '--' }}</div>
+    <div nz-col nzLg="8">查询时间: {{ searchTime }}</div>
+    <div nz-col nzLg="8">平均温度: {{ baseData.averagetemp1 }}℃</div>
   </div>
   <div nz-row style="margin-top: 8px">
     <div nz-col nzSpan="24">
-      <track-path-history></track-path-history>
+      <track-path-history *ngIf="baseData" [baseData]="baseData"></track-path-history>
     </div>
   </div>
   <div nz-row style="margin-top: 8px">
     <div nz-col nzSpan="24">
-      <div id="f-echart" class="f-echart">图表</div>
-      <div id="f-echart2" class="f-echart">图表</div>
+      <div id="f-echart" class="f-echart"></div>
+      <div id="f-echart2" class="f-echart"></div>
     </div>
   </div>
 </nz-card>

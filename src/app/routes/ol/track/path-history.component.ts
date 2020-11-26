@@ -1,5 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { _HttpClient } from '@delon/theme';
+
 import { MapDataService } from '@service/common/map.data.service';
 import { NzModalRef, NzModalService } from 'ng-zorro-antd/modal';
 import { defaults as defaultControls } from 'ol/control';
@@ -33,7 +34,7 @@ import View from 'ol/View';
       <div id="popup-content">
         <p>车牌：{{ baseData?.vehicle }}</p>
         <p>温度：{{ baseData?.list[currentPointIndex]?.Temp1 }}℃</p>
-        <p>湿度：{{ baseData?.list[currentPointIndex]?.Temp2 }}%</p>
+        <!-- <p>湿度：{{ baseData?.list[currentPointIndex]?.Temp2 }}%</p> -->
         <p>时间：{{ baseData?.list[currentPointIndex]?.GPSTime }}</p>
         <p>位置：{{ baseData?.list[currentPointIndex]?.PlaceName }}</p>
       </div>
@@ -58,7 +59,7 @@ import View from 'ol/View';
         <tr>
           <th>车牌</th>
           <th>温度</th>
-          <th>湿度</th>
+          <!-- <th>湿度</th> -->
           <th>时间</th>
           <th>位置</th>
         </tr>
@@ -67,7 +68,7 @@ import View from 'ol/View';
         <tr *ngFor="let data of headerTable.data">
           <td>{{ baseData?.vehicle }}</td>
           <td>{{ data.Temp1 }}℃</td>
-          <td>{{ data.Temp2 }}%</td>
+          <!-- <td>{{ data.Temp2 }}%</td> -->
           <td>{{ data.GPSTime }}</td>
           <td>{{ data.PlaceName }}</td>
         </tr>
@@ -174,9 +175,25 @@ export class TrackPathHistoryComponent implements OnInit {
 
   route;
   polyLine: any;
-  baseData: any;
+  _baseData: any;
+  @Input()
+  set baseData(val: any) {
+    if (val && val.list) {
+      this._baseData = val;
+      const l = this._baseData.list.map((j) => fromEPSG4326([j.Lon, j.Lat]));
+      // this.polyLine = new Feature({
+      //   opt_geometryOrProperties: new LineString(l, GeometryLayout.XYZ),
+      // });
+      this.polyLine = new LineString(l, GeometryLayout.XYZ);
+      this.initMap();
+    }
+  }
+  get baseData() {
+    return this._baseData;
+  }
   overlay: Overlay;
   currentPointIndex = 0;
+
   constructor(private mapDataSrv: MapDataService, private modalSrv: NzModalService, private http: _HttpClient) {}
   ngOnInit(): void {
     // this.http
@@ -198,19 +215,19 @@ export class TrackPathHistoryComponent implements OnInit {
     //       this.modalSrv.warning({ nzTitle: '该车辆暂无历史数据', nzZIndex: 1030 });
     //     }
     //   });
-    this.http.get('./assets/tmp/mock-path.json').subscribe((d: any) => {
-      if (d) {
-        this.baseData = d;
-        const l = d.list.map((j) => fromEPSG4326([j.Lon, j.Lat]));
-        // this.polyLine = new Feature({
-        //   opt_geometryOrProperties: new LineString(l, GeometryLayout.XYZ),
-        // });
-        this.polyLine = new LineString(l, GeometryLayout.XYZ);
-        this.initMap();
-      } else {
-        this.modalSrv.warning({ nzTitle: '该车辆暂无历史数据', nzZIndex: 1030 });
-      }
-    });
+    // this.http.get('./assets/tmp/mock-path.json').subscribe((d: any) => {
+    //   if (d) {
+    //     this.baseData = d;
+    //     const l = d.list.map((j) => fromEPSG4326([j.Lon, j.Lat]));
+    //     // this.polyLine = new Feature({
+    //     //   opt_geometryOrProperties: new LineString(l, GeometryLayout.XYZ),
+    //     // });
+    //     this.polyLine = new LineString(l, GeometryLayout.XYZ);
+    //     this.initMap();
+    //   } else {
+    //     this.modalSrv.warning({ nzTitle: '该车辆暂无历史数据', nzZIndex: 1030 });
+    //   }
+    // });
   }
 
   initMap() {

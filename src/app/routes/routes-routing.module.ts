@@ -12,6 +12,7 @@ import { CallbackComponent } from './callback/callback.component';
 // dashboard pages
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { HomeComponent } from './home/home.component';
+import { TrackComponent } from './ol/track/track.component';
 import { UserLockComponent } from './passport/lock/lock.component';
 // passport pages
 import { UserLoginComponent } from './passport/login/login.component';
@@ -19,11 +20,15 @@ import { UserRegisterResultComponent } from './passport/register-result/register
 import { UserRegisterComponent } from './passport/register/register.component';
 
 const routes: Routes = [
+  {
+    path: '',
+    component: HomeComponent,
+  },
   // {
   //   path: '',
-  //   component: HomeComponent,
+  //   component: TrackComponent,
   // },
-  { path: '', redirectTo: 'ol/track', pathMatch: 'full' },
+  // { path: '', redirectTo: 'ol/track', pathMatch: 'full' },
 
   {
     path: 'manage',

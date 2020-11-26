@@ -3052,6 +3052,11 @@ class-utils@^0.3.5:
     isobject "^3.0.0"
     static-extend "^0.1.1"
 
+classlist.js@^1.1.20150312:
+  version "1.1.20150312"
+  resolved "https://registry.yarnpkg.com/classlist.js/-/classlist.js-1.1.20150312.tgz#1d70842f7022f08d9ac086ce69e5b250f2c57789"
+  integrity sha1-HXCEL3Ai8I2awIbOaeWyUPLFd4k=
+
 clean-css@^3.0.1:
   version "3.4.28"
   resolved "https://registry.yarnpkg.com/clean-css/-/clean-css-3.4.28.tgz#bf1945e82fc808f55695e6ddeaec01400efd03ff"
@@ -3418,6 +3423,11 @@ core-js@3.6.4:
   version "3.6.4"
   resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.6.4.tgz#440a83536b458114b9cb2ac1580ba377dc470647"
   integrity sha512-4paDGScNgZP2IXXilaffL9X7968RuvwlkK3xWtZRVqgd8SYNiVKRJvkFd1aqqEuPfN7E68ZHEp9hDj6lHj4Hyw==
+
+core-js@^3.7.0:
+  version "3.7.0"
+  resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.7.0.tgz#b0a761a02488577afbf97179e4681bf49568520f"
+  integrity sha512-NwS7fI5M5B85EwpWuIwJN4i/fbisQUwLwiSNUWeXlkAZ0sbBjLEvLvFLf1uzAUV66PcEPt4xCGCmOZSxVf3xzA==
 
 core-util-is@1.0.2, core-util-is@~1.0.0:
   version "1.0.2"
@@ -7258,6 +7268,17 @@ ng-alain@^10.0.2:
   version "10.0.2"
   resolved "https://registry.yarnpkg.com/ng-alain/-/ng-alain-10.0.2.tgz#5891ec098a233b7c452fd5543f2d74fb7c81ac61"
   integrity sha512-9xxpVtQXxbXcxIx9Hu2AO5qJsVCVxYHDkvEHjD4xPqx5kYA9ojgirPcktSRzQN1gk2KiiQO4U6fcrsDxpkc3bA==
+
+ng-zorro-antd@10.1.2:
+  version "10.1.2"
+  resolved "https://registry.yarnpkg.com/ng-zorro-antd/-/ng-zorro-antd-10.1.2.tgz#43ff5359a2a9a89f97f1344cece4f6b279ae2953"
+  integrity sha512-T6ph9ITeTS0ohX+VsyZaVrls53fgyTMJ0RFddJCK2WyQgg+BTznlSw24fJWgdTcocoIuPSBuVO27ecyZwN6Hhw==
+  dependencies:
+    "@angular/cdk" "^10.2.4"
+    "@ant-design/icons-angular" "^10.0.0"
+    date-fns "^2.10.0"
+    resize-observer-polyfill "^1.5.1"
+    tslib "^2.0.0"
 
 ng-zorro-antd@^10.0.1:
   version "10.1.1"
@@ -11356,6 +11377,11 @@ wcwidth@^1.0.1:
   integrity sha1-8LDc+RW8X/FSivrbLA4XtTLaL+g=
   dependencies:
     defaults "^1.0.3"
+
+web-animations-js@^2.3.2:
+  version "2.3.2"
+  resolved "https://registry.yarnpkg.com/web-animations-js/-/web-animations-js-2.3.2.tgz#a51963a359c543f97b47c7d4bc2d811f9fc9e153"
+  integrity sha512-TOMFWtQdxzjWp8qx4DAraTWTsdhxVSiWa6NkPFSaPtZ1diKUxTn4yTix73A1euG1WbSOMMPcY51cnjTIHrGtDA==
 
 webdriver-js-extender@2.1.0:
   version "2.1.0"

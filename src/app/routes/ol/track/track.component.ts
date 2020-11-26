@@ -1,5 +1,8 @@
 import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Route } from '@angular/router';
 import { _HttpClient } from '@delon/theme';
+import { MapDataService } from '@service/common/map.data.service';
+import { format } from 'date-fns';
 
 @Component({
   selector: 'app-track',
@@ -7,7 +10,20 @@ import { _HttpClient } from '@delon/theme';
   styleUrls: ['./track.component.less'],
 })
 export class TrackComponent implements OnInit, AfterViewInit {
-  constructor(private http: _HttpClient) {}
+  constructor(private http: _HttpClient, private mapDataSrv: MapDataService, private route: ActivatedRoute) {
+    this.route.queryParams.subscribe((x) => {
+      this.customerRegNo = x.customerRegNo;
+      this.delivetyOrderNo = x.delivetyOrderNo;
+      this.mapDataSrv.getSourceCargpsData(this.customerRegNo, this.delivetyOrderNo).subscribe((d) => {
+        this.baseData = d;
+        this.initData();
+      });
+    });
+  }
+  customerRegNo;
+  delivetyOrderNo;
+  searchTime = format(new Date(), 'yyyy-MM-dd');
+  isInit = false;
   data = [[], []];
   initNow = new Date();
   now = this.initNow;
@@ -104,6 +120,15 @@ export class TrackComponent implements OnInit, AfterViewInit {
       },
     ],
   };
+  initData() {
+    if (this.isInit) {
+      this.initMap();
+    } else {
+      setTimeout(() => {
+        this.initData();
+      }, 100);
+    }
+  }
   randomData() {
     this.now = new Date(+this.now + this.oneDay);
     const value = this.value + Math.random() * 5;
@@ -125,14 +150,13 @@ export class TrackComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {}
 
   ngAfterViewInit(): void {
-    this.http.get('./assets/tmp/mock-path.json').subscribe((d: any) => {
-      this.baseData = d;
-      this.initMap();
-    });
+    // this.http.get('./assets/tmp/mock-path.json').subscribe((d: any) => {
+    //   this.baseData = d;
+    //   this.initMap();
+    // });
+    this.isInit = true;
   }
   initMap() {
-    const myChart = echarts.init(document.getElementById('f-echart'));
-
     // for (let i = 0; i < 50; i++) {
     //   this.data[0].push(this.randomData());
     // }
@@ -145,19 +169,28 @@ export class TrackComponent implements OnInit, AfterViewInit {
         value: [new Date(x.GPSTime), x.Temp1],
       };
     });
-    this.data[1] = this.baseData.list.map((x) => {
-      return {
-        name: x.GPSTime,
-        value: [new Date(x.GPSTime), x.Temp2],
-      };
-    });
+    // this.data[1] = this.baseData.list.map((x) => {
+    //   return {
+    //     name: x.GPSTime,
+    //     value: [new Date(x.GPSTime), x.Temp2],
+    //   };
+    // });
     this.option.series[0].data = this.data[0];
     this.option2.series[0].data = this.data[1];
-
-    myChart.setOption(this.option);
-    const myChart2 = echarts.init(document.getElementById('f-echart2'));
-    myChart2.setOption(this.option2);
-
+    const echart1 = document.getElementById('f-echart');
+    const echart2 = document.getElementById('f-echart2');
+    if (this.data[0].length > 0) {
+      const myChart = echarts.init(document.getElementById('f-echart'));
+      myChart.setOption(this.option);
+    } else {
+      echart1.style.display = 'none';
+    }
+    if (this.data[1].length > 0) {
+      const myChart2 = echarts.init(document.getElementById('f-echart2'));
+      myChart2.setOption(this.option2);
+    } else {
+      echart2.style.display = 'none';
+    }
     // setInterval(() => {
     //   this.data[0].shift();
     //   this.data[1].shift();

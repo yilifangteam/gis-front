@@ -36,4 +36,11 @@ export class MapDataService implements OnDestroy {
   getShenzhenGeo() {
     return this.http.get('./assets/json/440300.json');
   }
+
+  getSourceCargpsData(customerRegNo: string, delivetyOrderNo: string) {
+    return this.http.post(fine1Url(UrlConfig.dashboard4) || 'http://81.68.97.133:6318/SourceCargpsData/getDataByDeliveryNo', {
+      customerRegNo,
+      delivetyOrderNo,
+    });
+  }
 }

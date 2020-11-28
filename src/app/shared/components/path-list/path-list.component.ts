@@ -22,6 +22,12 @@ import { WorkSiteDeviceComponent } from './work-site-device.component';
 })
 export class PathListComponent implements OnInit, AfterViewInit, OnDestroy {
   private destroy$ = new Subject<void>();
+
+  carVisible = true;
+  siteVisible = true;
+  baseVisible = true;
+  transferVisible = true;
+
   constructor(
     // public geo: GeoService,
     public fine1MapSrv: Fine1MapService,
@@ -72,6 +78,10 @@ export class PathListComponent implements OnInit, AfterViewInit, OnDestroy {
    * tip box 限制 3个
    */
   tipBoxLimit = 1;
+  /**
+   * 展开
+   */
+  isExpand = true;
 
   ngOnInit(): void {
     this.geolocation = navigator.geolocation;
@@ -103,9 +113,52 @@ export class PathListComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
+  pointVisibleChange(key) {
+    switch (key) {
+      case 0:
+        this.carVisible = !this.carVisible;
+        if (this.carVisible) {
+          this.fine1MapSrv.showCar(this.baseData.carGps);
+        } else {
+          this.fine1MapSrv.carSource.clear();
+        }
+        break;
+      case 1:
+        this.siteVisible = !this.siteVisible;
+        if (this.siteVisible) {
+          this.fine1MapSrv.showCrapSite(this.baseData.siteGps);
+        } else {
+          this.fine1MapSrv.crapSource.clear();
+        }
+        break;
+      case 2:
+        this.baseVisible = !this.baseVisible;
+        if (this.baseVisible) {
+          this.fine1MapSrv.showBase(this.baseData.destructorPlant);
+        } else {
+          this.fine1MapSrv.baseSource.clear();
+        }
+        break;
+      case 3:
+        this.transferVisible = !this.transferVisible;
+        if (this.transferVisible) {
+          this.fine1MapSrv.showTransfer(this.baseData.transfer);
+        } else {
+          this.fine1MapSrv.transferSource.clear();
+        }
+        break;
+      default:
+        break;
+    }
+  }
+
   pageChange(index: number = 1) {
     const cArr = chunkArray(this.data, this.listPagination.pageSize);
     this.pageData = cArr[index - 1];
+  }
+
+  iptChange($event) {
+    this.query(this.inputValue);
   }
 
   query(kw: string = '') {

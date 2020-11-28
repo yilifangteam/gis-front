@@ -42,6 +42,7 @@
     "@ngx-translate/http-loader": "^6.0.0",
     "@types/ol": "^6.4.2",
     "ajv": "^6.12.4",
+    "chaikin-smooth": "^1.0.4",
     "classlist.js": "^1.1.20150312",
     "core-js": "^3.7.0",
     "echarts": "^4.9.0",

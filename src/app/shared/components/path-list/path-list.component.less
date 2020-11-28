@@ -19,10 +19,15 @@
     position: absolute;
     top: 16px;
     left: 16px;
-    width: 360px;
+    width: 375px;
     padding: 16px 0 0 0;
     background-color: white;
     cursor: move;
+  }
+  .fold-btn {
+    position: absolute;
+    top: 5px;
+    right: 3px;
   }
   .tips {
     position: absolute;
@@ -42,13 +47,19 @@
     position: absolute;
     top: 16px;
     right: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: space-around;
     width: 300px;
     height: 40px;
     padding: 8px 8px;
     background-color: white;
+    cursor: move;
+    &_container {
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      > div {
+        cursor: pointer;
+      }
+    }
     img {
       width: 20px;
     }
@@ -66,4 +77,19 @@
   .ant-tabs > div > .ant-tabs-nav .ant-tabs-nav-wrap {
     overflow: inherit;
   }
+  ::ng-deep .ant-card-head {
+    padding: 0 16px;
+    border-bottom: none;
+  }
+  ::ng-deep .search-collapse {
+    .ant-collapse-header {
+      display: none;
+    }
+    .ant-collapse-content-box {
+      padding: 0 !important;
+    }
+  }
+  // .ant-tabs-tab {
+  //   margin-right: 0;
+  // }
 }

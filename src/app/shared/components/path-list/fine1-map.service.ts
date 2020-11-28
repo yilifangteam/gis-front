@@ -1,29 +1,22 @@
 import { Injectable } from '@angular/core';
-import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { CacheService } from '@delon/cache';
-import { _HttpClient } from '@delon/theme';
-import { defaults as defaultControls } from 'ol/control';
-import { ZoomSlider } from 'ol/control';
-import { Extent, getBottomLeft } from 'ol/extent';
+import smooth from 'chaikin-smooth';
+import { AnyNsRecord } from 'dns';
+import { Extent } from 'ol/extent';
 import Feature from 'ol/Feature';
 import GeoJSON from 'ol/format/GeoJSON';
-import Polyline from 'ol/format/Polyline';
-import Geometry from 'ol/geom/Geometry';
-import GeometryLayout from 'ol/geom/GeometryLayout';
 import LineString from 'ol/geom/LineString';
-import MultiPoint from 'ol/geom/MultiPoint';
 import MultiPolygon from 'ol/geom/MultiPolygon';
 import Point from 'ol/geom/Point';
 import Polygon from 'ol/geom/Polygon';
 import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer';
 import Map from 'ol/Map';
 import { get } from 'ol/proj';
-import { fromEPSG4326, toEPSG4326 } from 'ol/proj/epsg3857';
+import { fromEPSG4326 } from 'ol/proj/epsg3857';
 import { getVectorContext } from 'ol/render';
 import VectorSource from 'ol/source/Vector';
 import XYZ from 'ol/source/XYZ';
-import { Circle as CircleStyle, Fill, Icon, Stroke, Style, Text } from 'ol/style';
-import TileGrid from 'ol/tilegrid/TileGrid';
+import { Fill, Icon, Stroke, Style, Text } from 'ol/style';
 import View from 'ol/View';
 
 /**
@@ -202,13 +195,72 @@ export class Fine1MapService {
     this.map.addLayer(routeLayer);
   }
 
+  makeSmooth(path, numIterations) {
+    numIterations = Math.min(Math.max(numIterations, 1), 10);
+    while (numIterations > 0) {
+      path = smooth(path);
+      numIterations--;
+    }
+    return path;
+  }
+
+  getDistance(p1, p2) {
+    return Math.sqrt((p1[0] - p2[0]) * (p1[0] - p2[0]) + (p1[1] - p2[1]) * (p1[1] - p2[1]));
+  }
+  smooth1(points, isLoop) {
+    var len = points.length;
+    var ret = [];
+    var distance = 0;
+    for (var i = 1; i < len; i++) {
+      distance += this.getDistance(points[i - 1], points[i]);
+    }
+    var segs = distance / 2;
+    segs = segs < len ? len : segs;
+    for (var i = 0; i < segs; i++) {
+      var pos = (i / (segs - 1)) * (isLoop ? len : len - 1);
+      var idx = Math.floor(pos);
+      var w = pos - idx;
+      var p0;
+      var p1 = points[idx % len];
+      var p2;
+      var p3;
+      if (!isLoop) {
+        p0 = points[idx === 0 ? idx : idx - 1];
+        p2 = points[idx > len - 2 ? len - 1 : idx + 1];
+        p3 = points[idx > len - 3 ? len - 1 : idx + 2];
+      } else {
+        p0 = points[(idx - 1 + len) % len];
+        p2 = points[(idx + 1) % len];
+        p3 = points[(idx + 2) % len];
+      }
+      var w2 = w * w;
+      var w3 = w * w2;
+
+      ret.push([this.interpolate(p0[0], p1[0], p2[0], p3[0], w, w2, w3), this.interpolate(p0[1], p1[1], p2[1], p3[1], w, w2, w3)]);
+    }
+    return ret;
+  }
+
+  interpolate(p0, p1, p2, p3, t, t2, t3) {
+    var v0 = (p2 - p0) * 0.5;
+    var v1 = (p3 - p1) * 0.5;
+    return (2 * (p1 - p2) + v0 + v1) * t3 + (-3 * (p1 - p2) - 2 * v0 - v1) * t2 + v0 * t + p1;
+  }
+
   clipMap(geoJson: any) {
     const formatGeoJSON = new GeoJSON({
-      featureProjection: 'EPSG:3857',
+      // featureProjection: 'EPSG:3857',
     });
+
     const features = formatGeoJSON.readFeatures(geoJson);
-    const usaGeometry = features[0].getGeometry();
+    let usaGeometry: any = features[0].getGeometry();
+    const coords = usaGeometry.getCoordinates();
+    let cds = [...coords[0]];
+    const smoothened = this.makeSmooth(cds, 1);
+    usaGeometry.setCoordinates([smoothened]);
+    usaGeometry = usaGeometry.transform('EPSG:4326', 'EPSG:3857');
     const fExtent = usaGeometry.getExtent();
+
     // this.view.fit(fExtent);
     // this.fitMap();
     const fillStyle = new Fill({

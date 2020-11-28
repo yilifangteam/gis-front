@@ -18,7 +18,14 @@
       <nz-space>
         <nz-space-item>
           <nz-input-group class="search" nzSearch [nzAddOnAfter]="suffixIconButton" [nzSuffix]="inputClearTpl">
-            <input type="text" nz-input placeholder="搜索垃圾运输车、垃圾点" #ipt [(ngModel)]="inputValue" />
+            <input
+              type="text"
+              nz-input
+              placeholder="搜索垃圾运输车、垃圾点"
+              #ipt
+              [(ngModel)]="inputValue"
+              (ngModelChange)="iptChange($event)"
+            />
           </nz-input-group>
           <ng-template #suffixIconButton>
             <button nz-button nzType="primary" nzSearch (click)="query(ipt.value)"><i nz-icon nzType="search"></i></button>
@@ -38,153 +45,210 @@
         nzBorderless="true"
       >
         <nz-card-tab>
-          <nz-tabset nzSize="small" [(nzSelectedIndex)]="tabIndex" (nzSelectedIndexChange)="selectedIndexChange($event)">
-            <nz-tab nzTitle="垃圾运输车"></nz-tab>
-            <nz-tab nzTitle="垃圾点"></nz-tab>
-            <nz-tab nzTitle="处理基地"></nz-tab>
-            <nz-tab nzTitle="中转站"></nz-tab>
-          </nz-tabset>
+          <div>
+            <nz-tabset
+              [nzCentered]="true"
+              nzSize="small"
+              [nzTabBarGutter]="3"
+              [(nzSelectedIndex)]="tabIndex"
+              (nzSelectedIndexChange)="selectedIndexChange($event)"
+            >
+              <nz-tab [nzTitle]="carTitle">
+                <ng-template #carTitle>
+                  垃圾运输车
+                  <i *ngIf="carVisible" nz-icon nzType="eye" nzTheme="outline" (click)="pointVisibleChange(0)"></i>
+                  <i *ngIf="!carVisible" nz-icon nzType="eye-invisible" nzTheme="outline" (click)="pointVisibleChange(0)"></i>
+                </ng-template>
+              </nz-tab>
+              <nz-tab [nzTitle]="siteTitle">
+                <ng-template #siteTitle>
+                  垃圾点
+                  <i *ngIf="siteVisible" nz-icon nzType="eye" nzTheme="outline" (click)="pointVisibleChange(1)"></i>
+                  <i *ngIf="!siteVisible" nz-icon nzType="eye-invisible" nzTheme="outline" (click)="pointVisibleChange(1)"></i>
+                </ng-template>
+              </nz-tab>
+              <nz-tab [nzTitle]="baseTitle">
+                <ng-template #baseTitle>
+                  处理基地
+                  <i *ngIf="baseVisible" nz-icon nzType="eye" nzTheme="outline" (click)="pointVisibleChange(2)"></i>
+                  <i *ngIf="!baseVisible" nz-icon nzType="eye-invisible" nzTheme="outline" (click)="pointVisibleChange(2)"></i>
+                </ng-template>
+              </nz-tab>
+              <nz-tab [nzTitle]="transferTitle">
+                <ng-template #transferTitle>
+                  中转站
+                  <i *ngIf="transferVisible" nz-icon nzType="eye" nzTheme="outline" (click)="pointVisibleChange(3)"></i>
+                  <i *ngIf="!transferVisible" nz-icon nzType="eye-invisible" nzTheme="outline" (click)="pointVisibleChange(3)"></i>
+                </ng-template>
+              </nz-tab>
+            </nz-tabset>
+            <div class="fold-btn">
+              <a nzSize="small" nz-button nzType="link" *ngIf="isExpand" (click)="isExpand = !isExpand"
+                ><i nz-icon nzType="down" nzTheme="outline"></i
+              ></a>
+              <a nzSize="small" nz-button nzType="link" *ngIf="!isExpand" (click)="isExpand = !isExpand"
+                ><i nz-icon nzType="up" nzTheme="outline"></i
+              ></a>
+            </div>
+          </div>
         </nz-card-tab>
-        <ng-container *ngIf="tabIndex == 0">
-          <nz-list nzSize="small">
-            <nz-list-item *ngFor="let item of pageData" class="pointer" (click)="checkChange(!item.checked, item)">
-              <nz-space>
-                <nz-space-item>
-                  <label nz-checkbox [(ngModel)]="item.checked" (ngModelChange)="checkChange($event, item)"></label>
-                </nz-space-item>
+        <nz-collapse nzGhost class="search-collapse">
+          <nz-collapse-panel [(nzActive)]="isExpand">
+            <div>
+              <ng-container *ngIf="tabIndex == 0">
+                <nz-list nzSize="small">
+                  <nz-list-item *ngFor="let item of pageData" class="pointer" (click)="checkChange(!item.checked, item)">
+                    <nz-space>
+                      <nz-space-item>
+                        <label nz-checkbox [(ngModel)]="item.checked" (ngModelChange)="checkChange($event, item)"></label>
+                      </nz-space-item>
 
-                <nz-space-item>
-                  <div class="task-name">{{ item.carNum }} {{ item.comClearTypeName && '[' + item.comClearTypeName + ']' }}</div>
-                </nz-space-item>
-                <nz-space-item>
-                  <nz-tag [nzColor]="'#108ee9'">{{ item.speedStatus }}</nz-tag>
-                </nz-space-item>
-              </nz-space>
-            </nz-list-item>
-            <nz-list-pagination>
-              <nz-pagination
-                nzSize="small"
-                [nzPageIndex]="listPagination.pageIndex"
-                [nzPageSize]="listPagination.pageSize"
-                [nzTotal]="data.length"
-                (nzPageIndexChange)="listPagination.onChange($event)"
-              ></nz-pagination>
-            </nz-list-pagination>
-          </nz-list>
-        </ng-container>
+                      <nz-space-item>
+                        <div class="task-name">{{ item.carNum }} {{ item.comClearTypeName && '[' + item.comClearTypeName + ']' }}</div>
+                      </nz-space-item>
+                      <nz-space-item>
+                        <nz-tag [nzColor]="'#108ee9'">{{ item.speedStatus }}</nz-tag>
+                      </nz-space-item>
+                    </nz-space>
+                  </nz-list-item>
+                  <nz-list-pagination>
+                    <nz-pagination
+                      nzSize="small"
+                      [nzPageIndex]="listPagination.pageIndex"
+                      [nzPageSize]="listPagination.pageSize"
+                      [nzTotal]="data.length"
+                      (nzPageIndexChange)="listPagination.onChange($event)"
+                    ></nz-pagination>
+                  </nz-list-pagination>
+                </nz-list>
+              </ng-container>
 
-        <ng-container *ngIf="tabIndex == 1">
-          <nz-list nzSize="small">
-            <nz-list-item *ngFor="let item of pageData" class="pointer" (click)="checkChange(!item.checked, item)">
-              <nz-space>
-                <nz-space-item>
-                  <label nz-checkbox [(ngModel)]="item.checked" (ngModelChange)="checkChange($event, item)"></label>
-                </nz-space-item>
+              <ng-container *ngIf="tabIndex == 1">
+                <nz-list nzSize="small">
+                  <nz-list-item *ngFor="let item of pageData" class="pointer" (click)="checkChange(!item.checked, item)">
+                    <nz-space>
+                      <nz-space-item>
+                        <label nz-checkbox [(ngModel)]="item.checked" (ngModelChange)="checkChange($event, item)"></label>
+                      </nz-space-item>
 
-                <nz-space-item>
-                  <div class="site">
-                    <div class="site-title">{{ item.Name }} {{ item.workContentName && '[' + item.workContentName + ']' }}</div>
-                    <div class="site-address">
-                      {{ item.site }}
-                    </div>
-                  </div>
-                </nz-space-item>
-              </nz-space>
-            </nz-list-item>
-            <nz-list-pagination>
-              <nz-pagination
-                nzSize="small"
-                [nzPageIndex]="listPagination.pageIndex"
-                [nzPageSize]="listPagination.pageSize"
-                [nzTotal]="data.length"
-                (nzPageIndexChange)="listPagination.onChange($event)"
-              ></nz-pagination>
-            </nz-list-pagination>
-          </nz-list>
-        </ng-container>
+                      <nz-space-item>
+                        <div class="site">
+                          <div class="site-title">
+                            <ellipsis lines="1" tooltip>
+                              {{ item.Name }} {{ item.workContentName && '[' + item.workContentName + ']' }}
+                            </ellipsis>
+                          </div>
+                          <div class="site-address">
+                            {{ item.site }}
+                          </div>
+                        </div>
+                      </nz-space-item>
+                    </nz-space>
+                  </nz-list-item>
+                  <nz-list-pagination>
+                    <nz-pagination
+                      nzSize="small"
+                      [nzPageIndex]="listPagination.pageIndex"
+                      [nzPageSize]="listPagination.pageSize"
+                      [nzTotal]="data.length"
+                      (nzPageIndexChange)="listPagination.onChange($event)"
+                    ></nz-pagination>
+                  </nz-list-pagination>
+                </nz-list>
+              </ng-container>
 
-        <ng-container *ngIf="tabIndex == 2">
-          <nz-list nzSize="small">
-            <nz-list-item *ngFor="let item of pageData" class="pointer" (click)="checkChange(!item.checked, item)">
-              <nz-space>
-                <nz-space-item>
-                  <label nz-checkbox [(ngModel)]="item.checked" (ngModelChange)="checkChange($event, item)"></label>
-                </nz-space-item>
+              <ng-container *ngIf="tabIndex == 2">
+                <nz-list nzSize="small">
+                  <nz-list-item *ngFor="let item of pageData" class="pointer" (click)="checkChange(!item.checked, item)">
+                    <nz-space>
+                      <nz-space-item>
+                        <label nz-checkbox [(ngModel)]="item.checked" (ngModelChange)="checkChange($event, item)"></label>
+                      </nz-space-item>
 
-                <nz-space-item>
-                  <div class="site">
-                    <div class="site-title">{{ item.plantName }}</div>
-                    <div class="site-address">
-                      {{ item.plantAddress }}
-                    </div>
-                  </div>
-                </nz-space-item>
-              </nz-space>
-            </nz-list-item>
-            <nz-list-pagination>
-              <nz-pagination
-                nzSize="small"
-                [nzPageIndex]="listPagination.pageIndex"
-                [nzPageSize]="listPagination.pageSize"
-                [nzTotal]="data.length"
-                (nzPageIndexChange)="listPagination.onChange($event)"
-              ></nz-pagination>
-            </nz-list-pagination>
-          </nz-list>
-        </ng-container>
+                      <nz-space-item>
+                        <div class="site">
+                          <div class="site-title">{{ item.plantName }}</div>
+                          <div class="site-address">
+                            {{ item.plantAddress }}
+                          </div>
+                        </div>
+                      </nz-space-item>
+                    </nz-space>
+                  </nz-list-item>
+                  <nz-list-pagination>
+                    <nz-pagination
+                      nzSize="small"
+                      [nzPageIndex]="listPagination.pageIndex"
+                      [nzPageSize]="listPagination.pageSize"
+                      [nzTotal]="data.length"
+                      (nzPageIndexChange)="listPagination.onChange($event)"
+                    ></nz-pagination>
+                  </nz-list-pagination>
+                </nz-list>
+              </ng-container>
 
-        <ng-container *ngIf="tabIndex == 3">
-          <nz-list nzSize="small">
-            <nz-list-item *ngFor="let item of pageData" class="pointer" (click)="checkChange(!item.checked, item)">
-              <nz-space>
-                <nz-space-item>
-                  <label nz-checkbox [(ngModel)]="item.checked" (ngModelChange)="checkChange($event, item)"></label>
-                </nz-space-item>
+              <ng-container *ngIf="tabIndex == 3">
+                <nz-list nzSize="small">
+                  <nz-list-item *ngFor="let item of pageData" class="pointer" (click)="checkChange(!item.checked, item)">
+                    <nz-space>
+                      <nz-space-item>
+                        <label nz-checkbox [(ngModel)]="item.checked" (ngModelChange)="checkChange($event, item)"></label>
+                      </nz-space-item>
 
-                <nz-space-item>
-                  <div class="site">
-                    <div class="site-title">{{ item.plantName }} }</div>
-                    <div class="site-address">
-                      {{ item.plantAddress }}
-                    </div>
-                  </div>
-                </nz-space-item>
-              </nz-space>
-            </nz-list-item>
-            <nz-list-pagination>
-              <nz-pagination
-                nzSize="small"
-                [nzPageIndex]="listPagination.pageIndex"
-                [nzPageSize]="listPagination.pageSize"
-                [nzTotal]="data.length"
-                (nzPageIndexChange)="listPagination.onChange($event)"
-              ></nz-pagination>
-            </nz-list-pagination>
-          </nz-list>
-        </ng-container>
+                      <nz-space-item>
+                        <div class="site">
+                          <div class="site-title">
+                            <ellipsis lines="1" tooltip>
+                              {{ item.plantName }}
+                            </ellipsis>
+                          </div>
+                          <div class="site-address">
+                            {{ item.plantAddress }}
+                          </div>
+                        </div>
+                      </nz-space-item>
+                    </nz-space>
+                  </nz-list-item>
+                  <nz-list-pagination>
+                    <nz-pagination
+                      nzSize="small"
+                      [nzPageIndex]="listPagination.pageIndex"
+                      [nzPageSize]="listPagination.pageSize"
+                      [nzTotal]="data.length"
+                      (nzPageIndexChange)="listPagination.onChange($event)"
+                    ></nz-pagination>
+                  </nz-list-pagination>
+                </nz-list>
+              </ng-container>
+            </div>
+          </nz-collapse-panel>
+        </nz-collapse>
       </nz-card>
     </div>
   </div>
   <div class="view-bar" cdkDragBoundary=".fine1-map" cdkDrag>
-    <div>
-      <span>
-        <img src="./assets/images/菜单.svg" />
-      </span>
-      菜单
-    </div>
-    <div>
-      <span>
-        <img src="./assets/images/路况.svg" />
-      </span>
-      路况
-    </div>
-    <div>
-      <span>
-        <img src="./assets/images/卫星.svg" />
-      </span>
-      卫星
+    <div class="view-bar_container">
+      <div>
+        <span>
+          <img src="./assets/images/菜单.svg" />
+        </span>
+        菜单
+      </div>
+      <div>
+        <span>
+          <img src="./assets/images/路况.svg" />
+        </span>
+        路况
+      </div>
+      <div>
+        <span>
+          <img src="./assets/images/卫星.svg" />
+        </span>
+        卫星
+      </div>
     </div>
   </div>
+
   <!-- <div class="tips">
     {{ fine1MapSrv.tips }}
   </div> -->

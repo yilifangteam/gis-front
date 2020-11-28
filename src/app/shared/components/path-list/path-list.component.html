@@ -402,10 +402,10 @@
         <p>行驶速度：{{ tipBoxTarget.speed }}km/h</p>
       </div>
       <div *ngIf="tipBoxTarget.tabIndex == 1">
-        <p>垃圾点名称：{{ item.Name }}</p>
-        <p>垃圾点类型：{{ item.siteTypeName }}</p>
-        <p>垃圾分类：{{ item.workContentName }}</p>
-        <p>垃圾点地址：{{ item.site }}</p>
+        <p>垃圾点名称：{{ tipBoxTarget.Name }}</p>
+        <p>垃圾点类型：{{ tipBoxTarget.siteTypeName }}</p>
+        <p>垃圾分类：{{ tipBoxTarget.workContentName }}</p>
+        <p>垃圾点地址：{{ tipBoxTarget.site }}</p>
       </div>
       <div *ngIf="tipBoxTarget.tabIndex == 2">
         <p>基地名称：{{ tipBoxTarget.plantName }}</p>

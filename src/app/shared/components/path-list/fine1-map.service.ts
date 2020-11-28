@@ -12,12 +12,15 @@ import Polygon from 'ol/geom/Polygon';
 import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer';
 import Map from 'ol/Map';
 import Overlay from 'ol/Overlay';
+import OverlayPositioning from 'ol/OverlayPositioning';
 import { get } from 'ol/proj';
 import { fromEPSG4326 } from 'ol/proj/epsg3857';
 import { getVectorContext } from 'ol/render';
+import Cluster from 'ol/source/Cluster';
 import VectorSource from 'ol/source/Vector';
 import XYZ from 'ol/source/XYZ';
 import { Fill, Icon, Stroke, Style, Text } from 'ol/style';
+import CircleStyle from 'ol/style/Circle';
 import View from 'ol/View';
 
 /**
@@ -44,6 +47,7 @@ export class Fine1MapService {
    */
   crapSource: VectorSource;
   crapLayer: VectorLayer;
+  crapClusterSource: Cluster;
   /**
    * 基地
    */
@@ -75,8 +79,10 @@ export class Fine1MapService {
 
   allMonitor: any = {};
 
-  isShowName = true;
+  isShowName = false;
   overlay: Overlay;
+  addTipBoxList: Function;
+  target: any;
 
   constructor(private cacheSrv: CacheService) {}
 
@@ -116,8 +122,22 @@ export class Fine1MapService {
     this.crapSource = new VectorSource({
       features: [],
     });
-    this.crapLayer = new VectorLayer({
+    this.crapClusterSource = new Cluster({
       source: this.crapSource,
+      distance: 20,
+    });
+
+    this.crapLayer = new VectorLayer({
+      source: this.crapClusterSource,
+      style(feature) {
+        const feat = feature.get('features');
+        let style = null;
+        if (feat && feat.length > 0) {
+          style = feat[0].getStyle();
+        }
+
+        return style;
+      },
     });
 
     this.baseSource = new VectorSource({
@@ -139,11 +159,12 @@ export class Fine1MapService {
     const closer = document.getElementById('popup-closer');
     this.overlay = new Overlay({
       element: container,
-      autoPan: true,
-      autoPanAnimation: {
-        duration: 250,
-      },
-      offset: [0, -50],
+      // autoPan: false,
+      // autoPanAnimation: {
+      //   duration: 250,
+      // },
+      offset: [0, -30],
+      // positioning: OverlayPositioning.TOP_CENTER,
     });
     closer.onclick = () => {
       this.overlay.setPosition(undefined);
@@ -171,6 +192,42 @@ export class Fine1MapService {
       target,
       view: this.view,
       controls: [], // defaultControls().extend([new ZoomSlider()]),
+    });
+
+    this.map.on('pointermove', (e) => {
+      const feature: any = this.map.forEachFeatureAtPixel(e.pixel, (feature) => feature);
+
+      if (feature == undefined) {
+        this.map.getTargetElement().style.cursor = 'auto';
+      } else {
+        this.map.getTargetElement().style.cursor = 'pointer';
+      }
+    });
+    this.map.on('singleclick', (e) => {
+      const feature: any = this.map.forEachFeatureAtPixel(e.pixel, (feature) => feature);
+
+      if (feature) {
+        const type = feature.values_.type !== undefined ? feature.values_.type : feature.get('features')[0].values_.type;
+        const data = feature.values_.fine1Data || feature.get('features')[0].values_.fine1Data;
+        if (!data) {
+          return;
+        }
+        if (Number.isInteger(type)) {
+          data.tabIndex = type;
+        }
+        this.target.addTipBoxList(data, false);
+        // this.overlay.setPosition(fromEPSG4326([data.longitude, data.latitude]));
+
+        // this.city = feature.getType(); //type就是上面创建Feature对象集合中的type
+        // this.poupTy = feature.values_.stati;
+        // this.shopPopup = true;
+        // let coordinates = feature.getGeometry().getCoordinates();
+        // setTimeout(() => {
+        //   this.popup.setPosition(coordinates);
+        // }, 0);
+      } else {
+        this.overlay.setPosition(undefined);
+      }
     });
   }
 
@@ -230,22 +287,22 @@ export class Fine1MapService {
     return Math.sqrt((p1[0] - p2[0]) * (p1[0] - p2[0]) + (p1[1] - p2[1]) * (p1[1] - p2[1]));
   }
   smooth1(points, isLoop) {
-    var len = points.length;
-    var ret = [];
-    var distance = 0;
-    for (var i = 1; i < len; i++) {
+    let len = points.length;
+    let ret = [];
+    let distance = 0;
+    for (let i = 1; i < len; i++) {
       distance += this.getDistance(points[i - 1], points[i]);
     }
-    var segs = distance / 2;
+    let segs = distance / 2;
     segs = segs < len ? len : segs;
-    for (var i = 0; i < segs; i++) {
-      var pos = (i / (segs - 1)) * (isLoop ? len : len - 1);
-      var idx = Math.floor(pos);
-      var w = pos - idx;
-      var p0;
-      var p1 = points[idx % len];
-      var p2;
-      var p3;
+    for (let i = 0; i < segs; i++) {
+      let pos = (i / (segs - 1)) * (isLoop ? len : len - 1);
+      let idx = Math.floor(pos);
+      let w = pos - idx;
+      let p0;
+      let p1 = points[idx % len];
+      let p2;
+      let p3;
       if (!isLoop) {
         p0 = points[idx === 0 ? idx : idx - 1];
         p2 = points[idx > len - 2 ? len - 1 : idx + 1];
@@ -255,8 +312,8 @@ export class Fine1MapService {
         p2 = points[(idx + 1) % len];
         p3 = points[(idx + 2) % len];
       }
-      var w2 = w * w;
-      var w3 = w * w2;
+      let w2 = w * w;
+      let w3 = w * w2;
 
       ret.push([this.interpolate(p0[0], p1[0], p2[0], p3[0], w, w2, w3), this.interpolate(p0[1], p1[1], p2[1], p3[1], w, w2, w3)]);
     }
@@ -264,8 +321,8 @@ export class Fine1MapService {
   }
 
   interpolate(p0, p1, p2, p3, t, t2, t3) {
-    var v0 = (p2 - p0) * 0.5;
-    var v1 = (p3 - p1) * 0.5;
+    let v0 = (p2 - p0) * 0.5;
+    let v1 = (p3 - p1) * 0.5;
     return (2 * (p1 - p2) + v0 + v1) * t3 + (-3 * (p1 - p2) - 2 * v0 - v1) * t2 + v0 * t + p1;
   }
 
@@ -277,7 +334,7 @@ export class Fine1MapService {
     const features = formatGeoJSON.readFeatures(geoJson);
     let usaGeometry: any = features[0].getGeometry();
     const coords = usaGeometry.getCoordinates();
-    let cds = [...coords[0]];
+    const cds = [...coords[0]];
     const smoothened = this.makeSmooth(cds, 1);
     usaGeometry.setCoordinates([smoothened]);
     usaGeometry = usaGeometry.transform('EPSG:4326', 'EPSG:3857');
@@ -460,10 +517,11 @@ export class Fine1MapService {
 
     cars.forEach((c) => {
       const f = new Feature({
-        type: 'geoMarker',
+        type: 0,
+        fine1Data: c,
         geometry: new Point(fromEPSG4326([c.longitude, c.latitude])),
       });
-      let style = new Style({
+      const style = new Style({
         image: new Icon({
           // 比例 左上[0,0]  左下[0,1]  右下[1，1]
           anchor: [0.5, 1],
@@ -581,10 +639,11 @@ export class Fine1MapService {
 
     craps.forEach((c) => {
       const f = new Feature({
-        type: 'crapMarker',
+        type: 1,
+        fine1Data: c,
         geometry: new Point(fromEPSG4326([c.longitude, c.latitude])),
       });
-      let style = new Style({
+      const style = new Style({
         image: new Icon({
           // 比例 左上[0,0]  左下[0,1]  右下[1，1]
           anchor: [0.5, 1],
@@ -622,6 +681,7 @@ export class Fine1MapService {
     });
     this.crapSource.clear();
     this.crapSource.addFeatures(crapMarkers);
+    this.crapClusterSource.setSource(this.crapSource);
   }
 
   /**
@@ -632,10 +692,11 @@ export class Fine1MapService {
 
     bases.forEach((c) => {
       const f = new Feature({
-        type: 'baseMarker',
+        type: 2,
+        fine1Data: c,
         geometry: new Point(fromEPSG4326([c.longitude, c.latitude])),
       });
-      let style = new Style({
+      const style = new Style({
         image: new Icon({
           // 比例 左上[0,0]  左下[0,1]  右下[1，1]
           anchor: [0.5, 1],

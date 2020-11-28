@@ -29,7 +29,7 @@ export class PathListComponent implements OnInit, AfterViewInit, OnDestroy {
   baseVisible = true;
   transferVisible = true;
 
-  isShowName = true;
+  isShowName = false;
 
   constructor(
     // public geo: GeoService,
@@ -226,6 +226,7 @@ export class PathListComponent implements OnInit, AfterViewInit, OnDestroy {
   ngAfterViewInit(): void {
     // this.geo.updateSize();
     // this.locate();
+    this.fine1MapSrv.target = this;
     this.fine1MapSrv.initMap();
     this.mapDataSrv.getShenzhenGeo().subscribe((x) => {
       // this.fine1MapSrv.showArea(x);
@@ -245,13 +246,13 @@ export class PathListComponent implements OnInit, AfterViewInit, OnDestroy {
       this.subTipBoxList(item);
     }
   }
-  addTipBoxList(item) {
+  addTipBoxList(item, autoFit = true) {
     item.checked = true;
-    if (this.tipBoxTarget.tabIndex != undefined) {
+    if (this.tipBoxTarget && this.tipBoxTarget.tabIndex != undefined) {
       this.subTipBoxList(this.tipBoxTarget, false);
     }
     let tpl;
-    switch (this.tabIndex) {
+    switch (item.tabIndex) {
       case 0:
         tpl = this.carTpl;
         break;
@@ -282,8 +283,10 @@ export class PathListComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     });
     this.tipBoxTarget = item;
-    this.fine1MapSrv.focusPoint([item.longitude, item.latitude]);
     this.fine1MapSrv.overlay.setPosition(fromEPSG4326([item.longitude, item.latitude]));
+    if (autoFit) {
+      this.fine1MapSrv.focusPoint([item.longitude, item.latitude]);
+    }
   }
 
   subTipBoxList(item, autoFit = true) {

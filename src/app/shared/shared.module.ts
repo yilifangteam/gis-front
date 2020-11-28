@@ -8,6 +8,7 @@ import { DelonACLModule } from '@delon/acl';
 import { AlainThemeModule } from '@delon/theme';
 import { TranslateModule } from '@ngx-translate/core';
 import { SHARED_COMPONENTS } from './components';
+import { DeviceTypePipe } from './components/path-list/device-type.pipe';
 import { SHARED_DELON_MODULES } from './shared-delon.module';
 import { SHARED_ZORRO_MODULES } from './shared-zorro.module';
 
@@ -20,7 +21,7 @@ const THIRDMODULES = [DragDropModule, ScrollingModule];
 // #region your componets & directives
 
 const COMPONENTS = [...SHARED_COMPONENTS];
-const DIRECTIVES = [];
+const DIRECTIVES = [DeviceTypePipe];
 
 // #endregion
 

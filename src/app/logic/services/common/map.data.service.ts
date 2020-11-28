@@ -43,4 +43,25 @@ export class MapDataService implements OnDestroy {
       delivetyOrderNo,
     });
   }
+
+  getWorkSiteDevice(siteNo: string, comCode: string) {
+    return this.http.post(fine1Url(UrlConfig.dashboard5), {
+      siteNo,
+      comCode,
+    });
+  }
+
+  selectTodayDayCount(siteNo: string, comCode: string) {
+    return this.http.post(fine1Url(UrlConfig.dashboard6), {
+      siteNo,
+      comCode,
+    });
+  }
+
+  workSiteDeviceEvent(siteNo: string, comCode: string) {
+    return this.http.post(fine1Url(UrlConfig.dashboard7), {
+      siteNo,
+      comCode,
+    });
+  }
 }

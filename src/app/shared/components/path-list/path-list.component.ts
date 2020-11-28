@@ -10,6 +10,9 @@ import { chunkArray } from '../../utils/array';
 import { Fine1MapService } from './fine1-map.service';
 import { PathHistoryComponent } from './path-history.component';
 import { PathRealTimeComponent } from './path-real-time.component';
+import { TodayDayCountComponent } from './today-day-count.component';
+import { VideoDeviceEventComponent } from './video-device-event.component';
+import { WorkSiteDeviceComponent } from './work-site-device.component';
 
 @Component({
   selector: 'ipt-path-list',
@@ -113,7 +116,8 @@ export class PathListComponent implements OnInit, AfterViewInit, OnDestroy {
           this.data = [
             ...this.baseData.carGps.filter(
               (c) =>
-                c.carNum.toLowerCase().indexOf(kw.toLowerCase()) >= 0 || c.comClearTypeName.toLowerCase().indexOf(kw.toLowerCase()) >= 0,
+                (c.carNum || '').toLowerCase().indexOf(kw.toLowerCase()) >= 0 ||
+                (c.comClearTypeName || '').toLowerCase().indexOf(kw.toLowerCase()) >= 0,
             ),
           ];
         } else {
@@ -287,6 +291,51 @@ export class PathListComponent implements OnInit, AfterViewInit, OnDestroy {
       live: true,
       html5m3u8: true,
       video: item.videoUrl,
+    });
+  }
+
+  viewWorkSiteDevice(item) {
+    const modal = this.modal.create({
+      nzTitle: item.Name + '(硬件信息)',
+      nzContent: WorkSiteDeviceComponent,
+      nzViewContainerRef: this.viewContainerRef,
+      nzComponentParams: {
+        site: item,
+      },
+      nzWidth: '720px',
+      nzZIndex: 1020,
+      nzCancelText: null,
+      nzOkText: '关闭',
+    });
+  }
+
+  viewTodayDayCount(item) {
+    const modal = this.modal.create({
+      nzTitle: item.Name + '(当天称重数量)',
+      nzContent: TodayDayCountComponent,
+      nzViewContainerRef: this.viewContainerRef,
+      nzComponentParams: {
+        site: item,
+      },
+      nzWidth: '720px',
+      nzZIndex: 1020,
+      nzCancelText: null,
+      nzOkText: '关闭',
+    });
+  }
+
+  viewDeviceEvent(item) {
+    const modal = this.modal.create({
+      nzTitle: item.Name + '(摄像头事件)',
+      nzContent: VideoDeviceEventComponent,
+      nzViewContainerRef: this.viewContainerRef,
+      nzComponentParams: {
+        site: item,
+      },
+      nzWidth: '720px',
+      nzZIndex: 1020,
+      nzCancelText: null,
+      nzOkText: '关闭',
     });
   }
 

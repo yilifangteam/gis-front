@@ -255,6 +255,14 @@
               <p>垃圾点类型：{{ item.siteTypeName }}</p>
               <p>垃圾分类：{{ item.workContentName }}</p>
               <p>垃圾点地址：{{ item.site }}</p>
+              <p>
+                操作：
+                <a (click)="viewWorkSiteDevice(item)">硬件信息</a>
+                <nz-divider nzType="vertical"></nz-divider>
+                <a (click)="viewTodayDayCount(item)">当天称重数量</a>
+                <nz-divider nzType="vertical"></nz-divider>
+                <a (click)="viewDeviceEvent(item)">摄像头事件</a>
+              </p>
             </div>
           </div>
         </div>

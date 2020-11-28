@@ -1,6 +1,10 @@
 import { NgModule, Type } from '@angular/core';
 
 import { SharedModule } from '@shared';
+import { PathListComponent } from '../shared/components/path-list/path-list.component';
+import { TodayDayCountComponent } from '../shared/components/path-list/today-day-count.component';
+import { VideoDeviceEventComponent } from '../shared/components/path-list/video-device-event.component';
+import { WorkSiteDeviceComponent } from '../shared/components/path-list/work-site-device.component';
 // single pages
 import { CallbackComponent } from './callback/callback.component';
 // dashboard pages
@@ -26,6 +30,10 @@ const COMPONENTS: Type<void>[] = [
   UserLockComponent,
   TrackComponent,
   TrackPathHistoryComponent,
+  PathListComponent,
+  VideoDeviceEventComponent,
+  TodayDayCountComponent,
+  WorkSiteDeviceComponent,
 ];
 const COMPONENTS_NOROUNT: Type<void>[] = [];
 

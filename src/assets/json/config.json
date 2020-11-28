@@ -22,12 +22,29 @@
         "url": "http://49.234.204.23:7903/sys/verify/getCode",
         "test": false,
         "pUrl": "http://49.234.204.23:7903/sys/verify/getCode?0.2507244431410398"
-    }
-    ,
+    },
     "dashboard4": {
         "name": "冷链物流",
         "url": "http://192.168.0.41:6318/SourceCargpsData/getDataByDeliveryNo",
         "test": false,
         "pUrl": "http://81.68.97.133:6318/SourceCargpsData/getDataByDeliveryNo"
+    },
+    "dashboard5": {
+        "name": "垃圾点硬件查询",
+        "url": "http://49.234.204.23:6605/WorkSiteDevice/map/Page",
+        "test": false,
+        "pUrl": "http://49.234.204.23:6605/WorkSiteDevice/map/Page"
+    },
+    "dashboard6": {
+        "name": "显示垃圾点当天称重数量",
+        "url": "http://49.234.204.23:6605/WorkSiteDeviceBinRecords/selectTodayDayCount",
+        "test": false,
+        "pUrl": "http://49.234.204.23:6605/WorkSiteDeviceBinRecords/selectTodayDayCount"
+    },
+    "dashboard7": {
+        "name": "摄像头事件",
+        "url": "http://49.234.204.23:6605/WorkSiteDeviceEvent/map/Page",
+        "test": false,
+        "pUrl": "http://49.234.204.23:6605/WorkSiteDeviceEvent/map/Page"
     }
 }

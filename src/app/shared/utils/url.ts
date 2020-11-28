@@ -8,6 +8,9 @@ export const UrlConfig = {
   dashboard2: 'dashboard2',
   dashboard3: 'dashboard3',
   dashboard4: 'dashboard4',
+  dashboard5: 'dashboard5',
+  dashboard6: 'dashboard6',
+  dashboard7: 'dashboard7',
 };
 
 export function urlSerialize(url: string, dashboard: string, isAuth = true) {

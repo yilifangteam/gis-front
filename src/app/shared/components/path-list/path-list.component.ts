@@ -4,6 +4,7 @@ import { GeoService } from '@service/common/geo.service';
 import { MapDataService } from '@service/common/map.data.service';
 import { NzModalService } from 'ng-zorro-antd/modal';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
+import { fromEPSG4326 } from 'ol/proj/epsg3857';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { chunkArray } from '../../utils/array';
@@ -27,6 +28,8 @@ export class PathListComponent implements OnInit, AfterViewInit, OnDestroy {
   siteVisible = true;
   baseVisible = true;
   transferVisible = true;
+
+  isShowName = true;
 
   constructor(
     // public geo: GeoService,
@@ -72,7 +75,7 @@ export class PathListComponent implements OnInit, AfterViewInit, OnDestroy {
 
   inputValue = '';
 
-  tipBoxList: any[] = [];
+  tipBoxTarget: any = {};
 
   /**
    * tip box 限制 3个
@@ -150,6 +153,13 @@ export class PathListComponent implements OnInit, AfterViewInit, OnDestroy {
       default:
         break;
     }
+  }
+
+  showNameChange($event) {
+    this.fine1MapSrv.isShowName = this.isShowName;
+    this.fine1MapSrv.showCar(this.baseData.carGps);
+    this.fine1MapSrv.showCrapSite(this.baseData.siteGps);
+    this.fine1MapSrv.showBase(this.baseData.destructorPlant);
   }
 
   pageChange(index: number = 1) {
@@ -237,8 +247,8 @@ export class PathListComponent implements OnInit, AfterViewInit, OnDestroy {
   }
   addTipBoxList(item) {
     item.checked = true;
-    if (this.tipBoxLimit <= this.tipBoxList.length) {
-      this.subTipBoxList(this.tipBoxList[0], false);
+    if (this.tipBoxTarget.tabIndex != undefined) {
+      this.subTipBoxList(this.tipBoxTarget, false);
     }
     let tpl;
     switch (this.tabIndex) {
@@ -266,23 +276,25 @@ export class PathListComponent implements OnInit, AfterViewInit, OnDestroy {
     });
     item.ntfId = nty.messageId;
     nty.onClose.subscribe((x) => {
-      const tmp = this.tipBoxList.find((t) => t.ntfId == nty.messageId);
+      const tmp = this.tipBoxTarget;
       if (tmp) {
         this.subTipBoxList(tmp);
       }
     });
-    this.tipBoxList.push(item);
+    this.tipBoxTarget = item;
     this.fine1MapSrv.focusPoint([item.longitude, item.latitude]);
+    this.fine1MapSrv.overlay.setPosition(fromEPSG4326([item.longitude, item.latitude]));
   }
 
   subTipBoxList(item, autoFit = true) {
     item.checked = false;
     this.notificationSrv.remove(item.ntfId);
     item.ntfId = '';
-    this.tipBoxList = this.tipBoxList.filter((t) => t !== item);
+    this.tipBoxTarget = {};
     if (autoFit) {
       this.fine1MapSrv.fitMap(this.fine1MapSrv.crapSource);
     }
+    this.fine1MapSrv.overlay.setPosition(undefined);
   }
 
   viewRealTime(item) {

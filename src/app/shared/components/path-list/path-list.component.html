@@ -17,7 +17,7 @@
     <div class="search">
       <nz-space>
         <nz-space-item>
-          <nz-input-group class="search" nzSearch [nzAddOnAfter]="suffixIconButton" [nzSuffix]="inputClearTpl">
+          <nz-input-group class="search-ipt" nzSearch [nzAddOnAfter]="suffixIconButton" [nzSuffix]="inputClearTpl">
             <input
               type="text"
               nz-input
@@ -33,6 +33,11 @@
           <ng-template #inputClearTpl
             ><i nz-icon class="ant-input-clear-icon" nzTheme="fill" nzType="close-circle" *ngIf="inputValue" (click)="inputValue = null"></i
           ></ng-template>
+        </nz-space-item>
+        <nz-space-item nzAlign="center">
+          <div class="show-name">
+            <label nz-checkbox [(ngModel)]="isShowName" (ngModelChange)="showNameChange($event)">标题</label>
+          </div>
         </nz-space-item>
       </nz-space>
     </div>
@@ -386,4 +391,27 @@
   <ng-template #videoTpl let-params>
     <div id="videoMonitoring" style="height: 332px"></div>
   </ng-template>
+
+  <div id="popup" class="ol-popup">
+    <a href="#" id="popup-closer" class="ol-popup-closer"></a>
+    <div id="popup-content">
+      <div *ngIf="tipBoxTarget.tabIndex == 0">
+        <p>车辆名称： {{ tipBoxTarget.carNum }} {{ tipBoxTarget.comClearTypeName && '[' + tipBoxTarget.comClearTypeName + ']' }}</p>
+        <p>垃圾分类：{{ tipBoxTarget.comClearTypeName }}</p>
+        <p>车辆状态：{{ tipBoxTarget.speedStatus }}</p>
+        <p>行驶速度：{{ tipBoxTarget.speed }}km/h</p>
+      </div>
+      <div *ngIf="tipBoxTarget.tabIndex == 1">
+        <p>垃圾点名称：{{ item.Name }}</p>
+        <p>垃圾点类型：{{ item.siteTypeName }}</p>
+        <p>垃圾分类：{{ item.workContentName }}</p>
+        <p>垃圾点地址：{{ item.site }}</p>
+      </div>
+      <div *ngIf="tipBoxTarget.tabIndex == 2">
+        <p>基地名称：{{ tipBoxTarget.plantName }}</p>
+        <p>基地地址：{{ tipBoxTarget.plantAddress }}</p>
+      </div>
+      <div *ngIf="tipBoxTarget.tabIndex == 3"></div>
+    </div>
+  </div>
 </div>

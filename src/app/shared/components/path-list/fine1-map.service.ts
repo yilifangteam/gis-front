@@ -11,6 +11,7 @@ import Point from 'ol/geom/Point';
 import Polygon from 'ol/geom/Polygon';
 import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer';
 import Map from 'ol/Map';
+import Overlay from 'ol/Overlay';
 import { get } from 'ol/proj';
 import { fromEPSG4326 } from 'ol/proj/epsg3857';
 import { getVectorContext } from 'ol/render';
@@ -74,6 +75,9 @@ export class Fine1MapService {
 
   allMonitor: any = {};
 
+  isShowName = true;
+  overlay: Overlay;
+
   constructor(private cacheSrv: CacheService) {}
 
   get tips() {
@@ -130,6 +134,23 @@ export class Fine1MapService {
       source: this.transferSource,
     });
 
+    const container = document.getElementById('popup');
+    const content = document.getElementById('popup-content');
+    const closer = document.getElementById('popup-closer');
+    this.overlay = new Overlay({
+      element: container,
+      autoPan: true,
+      autoPanAnimation: {
+        duration: 250,
+      },
+      offset: [0, -50],
+    });
+    closer.onclick = () => {
+      this.overlay.setPosition(undefined);
+      closer.blur();
+      return false;
+    };
+
     this.view = new View({
       center: this.center,
       zoom: 19,
@@ -146,6 +167,7 @@ export class Fine1MapService {
     this.map = new Map({
       layers: [this.mainLayer, this.vectorLayer, this.carLayer, this.crapLayer, this.baseLayer, this.transferLayer],
       keyboardEventTarget: document,
+      overlays: [this.overlay],
       target,
       view: this.view,
       controls: [], // defaultControls().extend([new ZoomSlider()]),
@@ -441,9 +463,19 @@ export class Fine1MapService {
         type: 'geoMarker',
         geometry: new Point(fromEPSG4326([c.longitude, c.latitude])),
       });
-      f.setStyle([
-        new Style({
-          text: new Text({
+      let style = new Style({
+        image: new Icon({
+          // 比例 左上[0,0]  左下[0,1]  右下[1，1]
+          anchor: [0.5, 1],
+          src: c.iconPath,
+          // imgSize: [54, 97],
+          scale: 0.5,
+          rotation: c.gpscourse,
+        }),
+      });
+      if (this.isShowName) {
+        style.setText(
+          new Text({
             // 对其方式
             textAlign: 'center',
             // 基准线
@@ -462,16 +494,9 @@ export class Fine1MapService {
               color: 'rgba(0,0,0,0.6)',
             }),
           }),
-          image: new Icon({
-            // 比例 左上[0,0]  左下[0,1]  右下[1，1]
-            anchor: [0.5, 1],
-            src: c.iconPath,
-            // imgSize: [54, 97],
-            scale: 0.5,
-            rotation: c.gpscourse,
-          }),
-        }),
-      ]);
+        );
+      }
+      f.setStyle([style]);
       carMarkers.push(f);
     });
     this.carSource.clear();
@@ -559,9 +584,19 @@ export class Fine1MapService {
         type: 'crapMarker',
         geometry: new Point(fromEPSG4326([c.longitude, c.latitude])),
       });
-      f.setStyle([
-        new Style({
-          text: new Text({
+      let style = new Style({
+        image: new Icon({
+          // 比例 左上[0,0]  左下[0,1]  右下[1，1]
+          anchor: [0.5, 1],
+          src: c.iconPath,
+          // imgSize: [54, 97],
+          scale: 0.5,
+          rotation: c.gpscourse,
+        }),
+      });
+      if (this.isShowName) {
+        style.setText(
+          new Text({
             // 对其方式
             textAlign: 'center',
             // 基准线
@@ -580,16 +615,9 @@ export class Fine1MapService {
               color: '#48C23D',
             }),
           }),
-          image: new Icon({
-            // 比例 左上[0,0]  左下[0,1]  右下[1，1]
-            anchor: [0.5, 1],
-            src: c.iconPath,
-            // imgSize: [54, 97],
-            scale: 0.5,
-            rotation: c.gpscourse,
-          }),
-        }),
-      ]);
+        );
+      }
+      f.setStyle([style]);
       crapMarkers.push(f);
     });
     this.crapSource.clear();
@@ -607,9 +635,19 @@ export class Fine1MapService {
         type: 'baseMarker',
         geometry: new Point(fromEPSG4326([c.longitude, c.latitude])),
       });
-      f.setStyle([
-        new Style({
-          text: new Text({
+      let style = new Style({
+        image: new Icon({
+          // 比例 左上[0,0]  左下[0,1]  右下[1，1]
+          anchor: [0.5, 1],
+          src: c.iconPath || './assets/images/base.svg',
+          // imgSize: [54, 97],
+          scale: 0.5,
+          rotation: c.gpscourse,
+        }),
+      });
+      if (this.isShowName) {
+        style.setText(
+          new Text({
             // 对其方式
             textAlign: 'center',
             // 基准线
@@ -628,16 +666,9 @@ export class Fine1MapService {
               color: '#239DD5',
             }),
           }),
-          image: new Icon({
-            // 比例 左上[0,0]  左下[0,1]  右下[1，1]
-            anchor: [0.5, 1],
-            src: c.iconPath || './assets/images/base.svg',
-            // imgSize: [54, 97],
-            scale: 0.5,
-            rotation: c.gpscourse,
-          }),
-        }),
-      ]);
+        );
+      }
+      f.setStyle([style]);
       baseMarkers.push(f);
     });
     this.baseSource.clear();

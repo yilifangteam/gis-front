@@ -13,6 +13,7 @@ import { NzModalRef, NzModalService } from 'ng-zorro-antd/modal';
       [nzFrontPagination]="false"
       [nzTotal]="data?.totalSize"
       [nzPageSize]="data?.limit"
+      [nzScroll]="{ y: '240px' }"
     >
       <thead>
         <tr>

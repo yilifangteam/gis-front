@@ -1,6 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { _HttpClient } from '@delon/theme';
 import { MapDataService } from '@service/common/map.data.service';
+import { format } from 'date-fns';
 import { NzModalRef, NzModalService } from 'ng-zorro-antd/modal';
 import { defaults as defaultControls } from 'ol/control';
 import { ZoomSlider } from 'ol/control';
@@ -14,6 +15,7 @@ import LineString from 'ol/geom/LineString';
 import Point from 'ol/geom/Point';
 import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer';
 import Map from 'ol/Map';
+import Overlay from 'ol/Overlay';
 import { get } from 'ol/proj';
 import { fromEPSG4326, toEPSG4326 } from 'ol/proj/epsg3857';
 import { getVectorContext } from 'ol/render';
@@ -27,12 +29,56 @@ import View from 'ol/View';
   selector: 'app-path-history',
   template: `
     <div id="history-map" class="map"></div>
-    <label for="speed">
-      speed:&nbsp;
-      <input id="speed" type="range" min="10" max="999" step="10" value="60" />
-    </label>
-    <!-- <img src="./assets/images/navigation.png" /> -->
-    <button id="start-animation" (click)="startAnimation()">回放</button>
+    <nz-space nzAlign="center" class="mtb16">
+      <nz-space-item>
+        <label for="speed">
+          回放速度:&nbsp;
+          <input id="speed" type="range" min="10" max="999" step="10" value="60" />
+        </label>
+        <!-- <img src="./assets/images/navigation.png" /> -->
+        <button nz-button nzType="primary" nzSize="small" id="start-animation" (click)="startAnimation()">回放</button>
+      </nz-space-item>
+      <nz-space-item>
+        <nz-range-picker
+          [nzAllowClear]="false"
+          nzDropdownClassName="fine1-rp"
+          [nzShowTime]="true"
+          [(ngModel)]="date"
+          (ngModelChange)="dateOnChange($event)"
+        ></nz-range-picker>
+      </nz-space-item>
+    </nz-space>
+
+    <nz-table #dataTable nzSize="small" [nzData]="pointList" nzPageSize="50" [nzScroll]="{ y: '240px' }">
+      <thead>
+        <tr>
+          <th nzWidth="100px">车牌号</th>
+          <th nzWidth="150px">时间</th>
+          <th nzWidth="100px">速度</th>
+          <th>经度</th>
+          <th>纬度</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let data of dataTable.data">
+          <td>{{ car?.carNum }}</td>
+          <td>{{ data.time || now | _date }}</td>
+          <td>{{ data.speed || 0 | round }}km/h</td>
+          <td>{{ data.longitude }}</td>
+          <td>{{ data.latitude }}</td>
+        </tr>
+      </tbody>
+    </nz-table>
+    <div id="history-time-popup" class="ol-popup">
+      <a href="#" id="history-time-popup-closer" class="ol-popup-closer"></a>
+      <div id="history-time-popup-content">
+        <p>车牌：{{ car?.carNum }}</p>
+        <p>时间：{{ newData?.time || now | _date }}</p>
+        <p>速度：{{ newData?.speed || 0 | round }}km/h</p>
+        <p>经度：{{ newData?.longitude }}</p>
+        <p>纬度：{{ newData?.latitude }}</p>
+      </div>
+    </div>
   `,
   styles: [
     `
@@ -41,23 +87,86 @@ import View from 'ol/View';
         width: 100%;
         height: 500px;
       }
+      .mtb16{
+        margin-top:16px;
+        margin-bottom:16px;
+      }
       #history-map {
         width: 100%;
         height: 400px;
-        background-color: #f7f7f7;
+        bac
+        kground-color: #f7f7f7;
+      }
+      .ol-popup {
+        position: absolute;
+        z-index: 999;
+        background-color: white;
+        -webkit-filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.2));
+        /*filter: drop-shadow(0 1px 4px rgba(0,0,0,0.2));*/
+        filter: drop-shadow(0 1px 4px #ffc125);
+        padding: 8px;
+        border-radius: 10px;
+        border: 1px solid #cccccc;
+
+        bottom: 12px;
+        left: -50px;
+        display:none;
+        min-width: 280px;
+      }
+      #history-time-popup-content {
+        font-size: 12px;
+        line-height: 12px;
+      }
+      p {
+        margin-bottom: 0;
+      }
+      .ol-popup:after,
+      .ol-popup:before {
+        top: 100%;
+        border: solid transparent;
+        content: ' ';
+        height: 0;
+        width: 0;
+        position: absolute;
+        pointer-events: none;
+      }
+      .ol-popup:after {
+        border-top-color: white;
+        border-width: 10px;
+        left: 48px;
+        margin-left: -10px;
+      }
+      .ol-popup:before {
+        border-top-color: #cccccc;
+        border-width: 11px;
+        left: 48px;
+        margin-left: -11px;
+      }
+      .ol-popup-closer {
+        text-decoration: none;
+        position: absolute;
+        top: 2px;
+        right: 8px;
+      }
+      .ol-popup-closer:after {
+        content: '✖';
       }
     `,
   ],
   providers: [],
 })
 export class PathHistoryComponent {
+  date = [new Date(new Date().setHours(0, 0, 0, 0)), new Date(new Date().setHours(0, 0, 0, 0) + 24 * 60 * 60 * 1000 - 1)];
   animating = false;
   speed;
   now;
   speedInput;
   startButton;
   map;
-  geoMarker;
+  geoMarker: Feature;
+  routeFeature: Feature;
+  startMarker: Feature;
+  endMarker: Feature;
   mainLayer: TileLayer;
   center;
   routeCoords;
@@ -69,25 +178,53 @@ export class PathHistoryComponent {
    */
   historySource: VectorSource;
   historyLayer;
-
+  pointList: any[] = [];
   polyLine: any;
+  overlay: Overlay;
+  currentPointIndex = 0;
+  private _car;
   @Input()
   set car(val) {
-    if (val) {
-      this.http
-        .post('https://garbagesortingcity.fine1.com.cn/8888/influxdb/health/selectByTable', {
-          comCode: 'cus000001cus000007',
-          tbName: 'carGps',
-          timePoliy: '天',
-          carNum: val.carNum,
-        })
-        .subscribe((d: any[]) => {
-          if (d) {
-            const l = d.map((j) => fromEPSG4326([j.longitude, j.latitude]));
-            // this.polyLine = new Feature({
-            //   opt_geometryOrProperties: new LineString(l, GeometryLayout.XYZ),
-            // });
-            this.polyLine = new LineString(l, GeometryLayout.XYZ);
+    if (this._car != val) {
+      this._car = val;
+      this.query();
+    }
+  }
+
+  get car() {
+    return this._car;
+  }
+
+  newData: any;
+  constructor(private modal: NzModalRef, private mapDataSrv: MapDataService, private modalSrv: NzModalService, private http: _HttpClient) {
+    // this.modal.afterOpen.subscribe((x) => {
+    //   this.initMap();
+    // });
+  }
+
+  query() {
+    this.http
+      .post('https://garbagesortingcity.fine1.com.cn/8888/influxdb/health/selectByTable', {
+        // comCode: 'cus000001cus000007',
+        // tbName: 'carGps',
+        // timePoliy: '天',
+        carNum: this.car.carNum,
+        startDate: format(this.date[0], 'yyyy-MM-dd HH:mm:ss'),
+        endDate: format(this.date[1], 'yyyy-MM-dd HH:mm:ss'),
+      })
+      .subscribe((d: any[]) => {
+        if (Array.isArray(d) && d.length > 0) {
+          const l = d.map((j) => fromEPSG4326([j.longitude, j.latitude]));
+
+          this.pointList = d;
+          this.newData = d[0];
+          // this.polyLine = new Feature({
+          //   opt_geometryOrProperties: new LineString(l, GeometryLayout.XYZ),
+          // });
+          this.polyLine = new LineString(l, GeometryLayout.XYZ);
+          if (this.map) {
+            this.resetData();
+          } else {
             const el = document.querySelector('#history-map');
             if (el) {
               this.initMap();
@@ -96,14 +233,26 @@ export class PathHistoryComponent {
                 this.initMap();
               }, 50);
             }
-          } else {
-            this.modalSrv.warning({ nzTitle: '该车辆暂无历史数据', nzZIndex: 1030 });
           }
-        });
-    }
+        } else {
+          this.modalSrv.warning({ nzTitle: '该车辆暂无历史数据', nzZIndex: 1030 });
+        }
+      });
   }
 
-  constructor(private modal: NzModalRef, private mapDataSrv: MapDataService, private modalSrv: NzModalService, private http: _HttpClient) {}
+  resetData() {
+    const route = this.polyLine;
+    this.routeCoords = route.getCoordinates();
+    this.routeLength = this.routeCoords.length;
+    this.routeFeature.setGeometry(route);
+    this.geoMarker.setGeometry(new Point(this.routeCoords[0]));
+    this.startMarker.setGeometry(new Point(this.routeCoords[0]));
+    this.endMarker.setGeometry(new Point(this.routeCoords[this.routeLength - 1]));
+    this.fitMap(this.historySource);
+    setTimeout(() => {
+      this.overlay.setPosition(this.routeCoords[this.currentPointIndex]);
+    }, 100);
+  }
 
   initMap() {
     const resolutions = []; // 分辨率数组
@@ -121,7 +270,7 @@ export class PathHistoryComponent {
     this.routeCoords = route.getCoordinates();
     this.routeLength = this.routeCoords.length;
 
-    const routeFeature = new Feature({
+    this.routeFeature = new Feature({
       type: 'route',
       geometry: route,
     });
@@ -129,11 +278,11 @@ export class PathHistoryComponent {
       type: 'geoMarker',
       geometry: new Point(this.routeCoords[0]),
     });
-    const startMarker = new Feature({
+    this.startMarker = new Feature({
       type: 'start',
       geometry: new Point(this.routeCoords[0]),
     });
-    const endMarker = new Feature({
+    this.endMarker = new Feature({
       type: 'end',
       geometry: new Point(this.routeCoords[this.routeLength - 1]),
     });
@@ -206,24 +355,45 @@ export class PathHistoryComponent {
         }),
       }),
     };
+    this.routeFeature.setStyle(this.styles.route);
+    this.geoMarker.setStyle(this.styles.geoMarker);
+    this.startMarker.setStyle(this.styles.start);
+    this.endMarker.setStyle(this.styles.end);
+
+    const container = document.getElementById('history-time-popup');
+    const content = document.getElementById('history-time-popup-content');
+    const closer = document.getElementById('history-time-popup-closer');
+    container.style.display = 'block';
+    this.overlay = new Overlay({
+      element: container,
+      autoPan: true,
+      autoPanAnimation: {
+        duration: 250,
+      },
+    });
+    closer.onclick = () => {
+      this.overlay.setPosition(undefined);
+      closer.blur();
+      return false;
+    };
 
     this.animating = false;
 
     this.speedInput = document.getElementById('speed');
     this.startButton = document.getElementById('start-animation');
     this.historySource = new VectorSource({
-      features: [routeFeature, this.geoMarker, startMarker, endMarker],
+      features: [this.routeFeature, this.geoMarker, this.startMarker, this.endMarker],
     });
     this.historyLayer = new VectorLayer({
       source: this.historySource,
-      style: (feature) => {
-        if (this.animating && feature.get('type') === 'geoMarker') {
-          return null;
-        }
-        const tStyles = [this.styles[feature.get('type')]];
+      // style: (feature) => {
+      //   // if (this.animating && feature.get('type') === 'geoMarker') {
+      //   //   return null;
+      //   // }
+      //   const tStyles = [this.styles[feature.get('type')]];
 
-        return tStyles;
-      },
+      //   return tStyles;
+      // },
     });
 
     const view = new View({
@@ -241,6 +411,7 @@ export class PathHistoryComponent {
     });
     this.map = new Map({
       layers: [this.mainLayer, this.historyLayer],
+      overlays: [this.overlay],
       keyboardEventTarget: document,
       target: 'history-map',
       view,
@@ -252,6 +423,13 @@ export class PathHistoryComponent {
     //   this.fitMap(this.historySource);
     // });
     this.fitMap(this.historySource);
+    setTimeout(() => {
+      this.overlay.setPosition(this.routeCoords[this.currentPointIndex]);
+    }, 100);
+  }
+
+  dateOnChange($event) {
+    this.query();
   }
 
   moveFeature(event) {
@@ -280,7 +458,9 @@ export class PathHistoryComponent {
         const dy = end[1] - start[1];
         rotation = pi90 - Math.atan2(dy, dx);
       }
-
+      this.currentPointIndex = index;
+      this.newData = this.pointList[this.currentPointIndex];
+      this.overlay.setPosition(this.routeCoords[this.currentPointIndex]);
       vectorContext.drawFeature(
         feature,
         new Style({
@@ -308,6 +488,8 @@ export class PathHistoryComponent {
       this.now = new Date().getTime();
       this.speed = this.speedInput.value;
       this.startButton.textContent = '取消回放';
+      this.geoMarker.setStyle(null);
+      // this.geoMarker.setGeometry(undefined);
       // this.map.getView().setCenter(this.center);
       this.historyLayer.on('postrender', (event) => this.moveFeature(event));
       this.map.render();
@@ -316,7 +498,10 @@ export class PathHistoryComponent {
   stopAnimation(ended) {
     this.animating = false;
     this.startButton.textContent = '回放';
-
+    // this.geoMarker.setStyle(this.styles.geoMarker);
+    this.geoMarker.setGeometry(new Point(this.routeCoords[this.currentPointIndex]));
+    this.currentPointIndex = 0;
+    this.overlay.setPosition(this.routeCoords[this.currentPointIndex]);
     this.historyLayer.un('postrender', (event) => this.moveFeature(event));
   }
 
@@ -363,7 +548,7 @@ export class PathHistoryComponent {
           this.map.getSize(),
           [document.querySelector('#history-map').clientWidth / 2, document.querySelector('#history-map').clientHeight / 2],
         );
-      this.map.getView().setZoom(11);
+      this.map.getView().setZoom(14);
     }
     // if (targetSource.getFeatures().length == 1) {
     //   this.map

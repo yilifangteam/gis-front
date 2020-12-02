@@ -15,6 +15,7 @@ import LineString from 'ol/geom/LineString';
 import Point from 'ol/geom/Point';
 import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer';
 import Map from 'ol/Map';
+import Overlay from 'ol/Overlay';
 import { get } from 'ol/proj';
 import { fromEPSG4326, toEPSG4326 } from 'ol/proj/epsg3857';
 import { getVectorContext } from 'ol/render';
@@ -31,7 +32,36 @@ import { takeUntil } from 'rxjs/operators';
   template: `
     <div id="real-time-map" class="map"></div>
 
-    <div>123456</div>
+    <nz-table #dataTable nzSize="small" [nzData]="pointList" [nzPageSize]="10" [nzScroll]="{ y: '240px' }">
+      <thead>
+        <tr>
+          <th nzWidth="100px">车牌号</th>
+          <th nzWidth="150px">时间</th>
+          <th nzWidth="100px">速度</th>
+          <th>经度</th>
+          <th>纬度</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let data of dataTable.data">
+          <td>{{ data.carNum }}</td>
+          <td>{{ data.time || now | _date }}</td>
+          <td>{{ data.speed | round }}km/h</td>
+          <td>{{ data.longitude }}</td>
+          <td>{{ data.latitude }}</td>
+        </tr>
+      </tbody>
+    </nz-table>
+    <div id="real-time-popup" class="ol-popup">
+      <a href="#" id="real-time-popup-closer" class="ol-popup-closer"></a>
+      <div id="real-time-popup-content">
+        <p>车牌：{{ newData?.carNum }}</p>
+        <p>时间：{{ newData?.time || now | _date }}</p>
+        <p>速度：{{ newData.speed | round }}km/h</p>
+        <p>经度：{{ newData?.longitude }}</p>
+        <p>纬度：{{ newData?.latitude }}</p>
+      </div>
+    </div>
   `,
   styles: [
     `
@@ -44,6 +74,59 @@ import { takeUntil } from 'rxjs/operators';
         width: 100%;
         height: 400px;
         background-color: #f7f7f7;
+      }
+      .ol-popup {
+        position: absolute;
+        z-index: 999;
+        background-color: white;
+        -webkit-filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.2));
+        /*filter: drop-shadow(0 1px 4px rgba(0,0,0,0.2));*/
+        filter: drop-shadow(0 1px 4px #ffc125);
+        padding: 8px;
+        border-radius: 10px;
+        border: 1px solid #cccccc;
+
+        bottom: 12px;
+        left: -50px;
+        min-width: 280px;
+      }
+      #real-time-popup-content {
+        font-size: 12px;
+        line-height: 12px;
+      }
+      p {
+        margin-bottom: 0;
+      }
+      .ol-popup:after,
+      .ol-popup:before {
+        top: 100%;
+        border: solid transparent;
+        content: ' ';
+        height: 0;
+        width: 0;
+        position: absolute;
+        pointer-events: none;
+      }
+      .ol-popup:after {
+        border-top-color: white;
+        border-width: 10px;
+        left: 48px;
+        margin-left: -10px;
+      }
+      .ol-popup:before {
+        border-top-color: #cccccc;
+        border-width: 11px;
+        left: 48px;
+        margin-left: -11px;
+      }
+      .ol-popup-closer {
+        text-decoration: none;
+        position: absolute;
+        top: 2px;
+        right: 8px;
+      }
+      .ol-popup-closer:after {
+        content: '✖';
       }
     `,
   ],
@@ -66,40 +149,83 @@ export class PathRealTimeComponent implements OnDestroy {
 
   polyLine: any[];
 
+  newData: any;
+  overlay: Overlay;
+
   private _car;
   @Input()
   set car(val) {
     this._car = val;
-    const el = document.querySelector('#real-time-map');
+    this.newData = val;
+    this.pointList = [];
+    this.pointList.push(val);
+    // const el = document.querySelector('#real-time-map');
     this.oldPoint = fromEPSG4326([val.longitude, val.latitude]);
     this.newPoint = fromEPSG4326([val.longitude, val.latitude]);
-    setTimeout(() => {
-      this.initMap();
-      setInterval(() => {
-        this.monitor(val);
-      }, 1000);
-      // this.mapDataSrv
-      //   .getCarRealTimeGps()
-      //   .pipe(takeUntil(this.destroy$))
-      //   .subscribe((data) => {
-      //     if (data && data.length > 0) {
-      //       // const d = data.find((x) => x.imei === this._car?.imei);
-      //       // if (d) {
-      //       // this.polyLine.push(fromEPSG4326([d.longitude, d.latitude]));
-      //       this.monitor(data[0]);
-      //       // }
-      //     }
-      //   });
-    }, 50);
+
+    // setInterval(() => {
+    //   const e = { ...{}, ...val };
+    //   if (Math.random() > 0.5) {
+    //     e.longitude = this.roundNum(Number.parseFloat(val.longitude) + Math.random() * 10, 5);
+    //   } else {
+    //     e.longitude = this.roundNum(Number.parseFloat(val.longitude) - Math.random() * 10, 5);
+    //   }
+
+    //   if (Math.random() > 0.5) {
+    //     e.latitude = this.roundNum(Number.parseFloat(val.latitude) + Math.random() * 10, 5);
+    //   } else {
+    //     e.latitude = this.roundNum(Number.parseFloat(val.latitude) - Math.random() * 10, 5);
+    //   }
+    // this.newData=e;
+    //   this.pointList = [e, ...this.pointList];
+    //   this.monitor(e);
+    // }, 1000);
   }
+
+  get car() {
+    return this._car;
+  }
+
+  now = new Date();
 
   oldPoint: Coordinate = [0, 0];
   newPoint: Coordinate = [0, 0];
-  constructor(private modal: NzModalRef, private mapDataSrv: MapDataService, private modalSrv: NzModalService, private http: _HttpClient) {}
+
+  pointList: any[] = [];
+
+  constructor(private modal: NzModalRef, private mapDataSrv: MapDataService, private modalSrv: NzModalService, private http: _HttpClient) {
+    this.mapDataSrv
+      .getCarRealTimeGps()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((data) => {
+        if (data && data.length > 0) {
+          if (this.car.imei == data[0].imei) {
+            // console.log('新数据');
+            this.newData = data[0];
+            this.pointList = [data[0], ...this.pointList];
+            this.monitor(data[0]);
+          }
+        }
+      });
+    this.modal.afterOpen.subscribe((x) => {
+      this.initMap();
+    });
+  }
+
+  roundNum(value, roundNum = 2) {
+    value = Number.parseFloat(value.toString());
+    if (roundNum <= 0) {
+      return Math.round(value);
+    }
+    // eslint-disable-next-line no-restricted-properties
+    value = Math.round(Math.round(value * Math.pow(10, roundNum + 1)) / Math.pow(10, 1)) / Math.pow(10, roundNum);
+    return value;
+  }
   monitor(d) {
     this.oldPoint = (this.geoMarker.getGeometry() as any).getFlatCoordinates();
 
     this.newPoint = fromEPSG4326([d.longitude, d.latitude]);
+    this.overlay.setPosition(this.newPoint);
 
     // if (Math.random() > 0.5) {
     //   this.newPoint[0] = this.oldPoint[0] + Math.random() * 500;
@@ -116,10 +242,11 @@ export class PathRealTimeComponent implements OnDestroy {
     // const newPoint: Coordinate = fromEPSG4326([d.longitude, d.latitude]);
     this.geoMarker.setGeometry(new Point(this.newPoint));
     (this.geoMarker.getStyle() as any).getImage().setRotation(this.rotation(this.newPoint, this.oldPoint));
-    const line = this.lineMarker.getGeometry() as LineString;
-    line.appendCoordinate(this.newPoint);
+    // const line = this.lineMarker.getGeometry() as LineString;
+    // line.appendCoordinate(this.newPoint);
 
     // this.fitMap(this.realTimeSource);
+    this.focusPoint(this.newPoint);
   }
 
   rotation(np, op) {
@@ -171,6 +298,23 @@ export class PathRealTimeComponent implements OnDestroy {
       source: this.realTimeSource,
     });
 
+    const container = document.getElementById('real-time-popup');
+    const content = document.getElementById('real-time-popup-content');
+    const closer = document.getElementById('real-time-popup-closer');
+    this.overlay = new Overlay({
+      element: container,
+      offset: [0, -20],
+      // autoPan: true,
+      // autoPanAnimation: {
+      //   duration: 250,
+      // },
+    });
+    closer.onclick = () => {
+      this.overlay.setPosition(undefined);
+      closer.blur();
+      return false;
+    };
+
     const view = new View({
       center: this.center,
       zoom: 19,
@@ -187,11 +331,14 @@ export class PathRealTimeComponent implements OnDestroy {
     this.map = new Map({
       layers: [this.mainLayer, this.realTimeLayer],
       keyboardEventTarget: document,
+      overlays: [this.overlay],
       target: 'real-time-map',
       view,
       controls: [],
     });
-
+    setTimeout(() => {
+      this.monitor(this.car);
+    }, 100);
     this.fitMap(this.realTimeSource);
   }
 
@@ -238,7 +385,7 @@ export class PathRealTimeComponent implements OnDestroy {
           this.map.getSize(),
           [document.querySelector('#real-time-map').clientWidth / 2, document.querySelector('#real-time-map').clientHeight / 2],
         );
-      this.map.getView().setZoom(19);
+      // this.map.getView().setZoom(19);
     }
   }
 
@@ -312,15 +459,15 @@ export class PathRealTimeComponent implements OnDestroy {
     return one_p;
   }
 
-  focusPoint(point: [number, number]) {
+  focusPoint(point: Coordinate) {
     this.map
       .getView()
-      .centerOn(fromEPSG4326([point[0], point[1]]), this.map.getSize(), [
-        document.querySelector('#history-map').clientWidth / 2,
-        document.querySelector('#history-map').clientHeight / 2,
+      .centerOn(point, this.map.getSize(), [
+        document.querySelector('#real-time-map').clientWidth / 2,
+        document.querySelector('#real-time-map').clientHeight / 2,
       ]);
 
-    this.map.getView().setZoom(16);
+    // this.map.getView().setZoom(16);
   }
 
   destroyModal(): void {
@@ -330,5 +477,6 @@ export class PathRealTimeComponent implements OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+    this.overlay.setPosition(undefined);
   }
 }

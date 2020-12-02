@@ -1,9 +1,17 @@
 import { NgModule, Type } from '@angular/core';
 
 import { SharedModule } from '@shared';
+// tslint:disable-next-line: use-path-mapping
+import { PathHistoryComponent } from '../shared/components/path-list/path-history.component';
+// tslint:disable-next-line: use-path-mapping
 import { PathListComponent } from '../shared/components/path-list/path-list.component';
+// tslint:disable-next-line: use-path-mapping
+import { PathRealTimeComponent } from '../shared/components/path-list/path-real-time.component';
+// tslint:disable-next-line: use-path-mapping
 import { TodayDayCountComponent } from '../shared/components/path-list/today-day-count.component';
+// tslint:disable-next-line: use-path-mapping
 import { VideoDeviceEventComponent } from '../shared/components/path-list/video-device-event.component';
+// tslint:disable-next-line: use-path-mapping
 import { WorkSiteDeviceComponent } from '../shared/components/path-list/work-site-device.component';
 // single pages
 import { CallbackComponent } from './callback/callback.component';
@@ -34,6 +42,8 @@ const COMPONENTS: Type<void>[] = [
   VideoDeviceEventComponent,
   TodayDayCountComponent,
   WorkSiteDeviceComponent,
+  PathRealTimeComponent,
+  PathHistoryComponent,
 ];
 const COMPONENTS_NOROUNT: Type<void>[] = [];
 

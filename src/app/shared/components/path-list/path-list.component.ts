@@ -102,9 +102,9 @@ export class PathListComponent implements OnInit, AfterViewInit, OnDestroy {
           if (data && data.length > 0) {
             const e = this.baseData.carGps.find((x) => x.imei == data[0].imei);
             if (e) {
-              if (e.historyLine) {
-                e.historyLine = [...e.historyLine, [data[0].longitude, data[0].latitude]];
-              }
+              // if (e.historyLine) {
+              //   e.historyLine = [...e.historyLine, [data[0].longitude, data[0].latitude]];
+              // }
               Object.assign(e, data[0]);
             } else {
               this.baseData.carGps.push(data[0]);
@@ -324,7 +324,7 @@ export class PathListComponent implements OnInit, AfterViewInit, OnDestroy {
         car: item,
       },
       nzWidth: '720px',
-      nzZIndex: 1020,
+      // nzZIndex: 1020,
       nzCancelText: null,
       nzOkText: '关闭',
     });

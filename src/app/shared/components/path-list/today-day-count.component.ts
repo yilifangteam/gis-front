@@ -6,7 +6,7 @@ import { NzModalRef, NzModalService } from 'ng-zorro-antd/modal';
 @Component({
   selector: 'app-today-day-count',
   template: `
-    <nz-table #smallTable nzSize="small" [nzData]="data">
+    <nz-table #smallTable nzSize="small" [nzData]="data" [nzScroll]="{ y: '240px' }">
       <thead>
         <tr>
           <th>名称</th>
